@@ -169,3 +169,42 @@ html[lang="bn"] h3 {
 html {
   scroll-behavior: smooth;
 }
+
+/* Boarding-pass shape for the login popup: round notches cut at the header edge and above the stub.
+   --hh is the header height and --sh the stub height, set by the component. */
+.ticket-shape {
+  --r: 11px;
+  --notch: #0000 calc(var(--r) - 0.5px), #000 var(--r);
+  -webkit-mask:
+    radial-gradient(circle var(--r) at 0 var(--hh), var(--notch)),
+    radial-gradient(circle var(--r) at 100% var(--hh), var(--notch)),
+    radial-gradient(circle var(--r) at 0 calc(100% - var(--sh)), var(--notch)),
+    radial-gradient(
+      circle var(--r) at 100% calc(100% - var(--sh)),
+      var(--notch)
+    );
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle var(--r) at 0 var(--hh), var(--notch)),
+    radial-gradient(circle var(--r) at 100% var(--hh), var(--notch)),
+    radial-gradient(circle var(--r) at 0 calc(100% - var(--sh)), var(--notch)),
+    radial-gradient(
+      circle var(--r) at 100% calc(100% - var(--sh)),
+      var(--notch)
+    );
+  mask-composite: intersect;
+}
+
+@keyframes auth-train {
+  to {
+    left: 100%;
+  }
+}
+.animate-auth-train {
+  animation: auth-train 10s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-auth-train {
+    animation: none;
+  }
+}

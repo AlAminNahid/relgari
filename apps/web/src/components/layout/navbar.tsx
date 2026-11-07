@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { MenuIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { AuthDialog } from "@/components/sections/auth/auth-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,6 +25,8 @@ const bookClass = cn(
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const [authOpen, setAuthOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
@@ -43,6 +47,7 @@ export function Navbar() {
           <LanguageSwitch />
           <Button
             variant="outline"
+            onClick={() => setAuthOpen(true)}
             className="hidden h-10 rounded-[10px] px-4 text-[15px] font-semibold sm:inline-flex"
           >
             {t("login")}
@@ -50,7 +55,7 @@ export function Navbar() {
           <a href="#search" className={cn(bookClass, "hidden sm:inline-flex")}>
             {t("book")}
           </a>
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger
               render={
                 <Button
@@ -71,6 +76,7 @@ export function Navbar() {
                 {NAV_LINKS.map((l) => (
                   <SheetClose
                     key={l.key}
+                    nativeButton={false}
                     render={
                       <a
                         href={l.href}
@@ -85,11 +91,16 @@ export function Navbar() {
               <div className="mt-auto flex flex-col gap-2 p-4">
                 <Button
                   variant="outline"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setAuthOpen(true);
+                  }}
                   className="h-11 rounded-[10px] text-base font-semibold"
                 >
                   {t("login")}
                 </Button>
                 <SheetClose
+                  nativeButton={false}
                   render={
                     <a
                       href="#search"
@@ -104,6 +115,7 @@ export function Navbar() {
           </Sheet>
         </div>
       </div>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </header>
   );
 }

@@ -25,7 +25,11 @@
     "title1": "Your train seat in",
     "title2": "under a minute.",
     "lead": "Search, pick your exact seat on a clear coach map, pay, and carry a QR ticket on your phone. Built for Bangladesh's railways, in Bangla and English.",
-    "points": ["Visual seat map", "QR e-ticket", "Bangla and English"]
+    "points": [
+      "Visual seat map",
+      "QR e-ticket",
+      "Bangla and English"
+    ]
   },
   "search": {
     "from": "From",
@@ -65,10 +69,26 @@
     "held": "Seats held 05:00"
   },
   "strip": [
-    { "value": "3", "unit": "taps", "text": "from home to seat map" },
-    { "value": "5", "unit": "min", "text": "seat hold with a live timer" },
-    { "value": "2", "unit": "languages", "text": "Bangla and English" },
-    { "value": "0", "unit": "paper", "text": "QR ticket on your phone" }
+    {
+      "value": "3",
+      "unit": "taps",
+      "text": "from home to seat map"
+    },
+    {
+      "value": "5",
+      "unit": "min",
+      "text": "seat hold with a live timer"
+    },
+    {
+      "value": "2",
+      "unit": "languages",
+      "text": "Bangla and English"
+    },
+    {
+      "value": "0",
+      "unit": "paper",
+      "text": "QR ticket on your phone"
+    }
   ],
   "departures": {
     "eyebrow": "Popular routes",
@@ -88,7 +108,10 @@
         "route": "Dhaka → Chattogram",
         "departs": "07:00",
         "arrives": "12:30",
-        "tags": ["snigdha", "schair"],
+        "tags": [
+          "snigdha",
+          "schair"
+        ],
         "few": false
       },
       {
@@ -96,7 +119,10 @@
         "route": "Dhaka → Sylhet",
         "departs": "06:20",
         "arrives": "12:45",
-        "tags": ["snigdha", "shovan"],
+        "tags": [
+          "snigdha",
+          "shovan"
+        ],
         "few": false
       },
       {
@@ -104,7 +130,9 @@
         "route": "Dhaka → Rajshahi",
         "departs": "15:10",
         "arrives": "21:25",
-        "tags": ["schair"],
+        "tags": [
+          "schair"
+        ],
         "few": true
       },
       {
@@ -112,7 +140,10 @@
         "route": "Dhaka → Khulna",
         "departs": "20:00",
         "arrives": "05:15",
-        "tags": ["ac", "snigdha"],
+        "tags": [
+          "ac",
+          "snigdha"
+        ],
         "few": false
       }
     ],
@@ -160,7 +191,10 @@
         "b": "See every seat.",
         "t": "Free, selected and sold seats look different, so you never guess."
       },
-      { "b": "Sit together.", "t": "Spot seats side by side at a glance." },
+      {
+        "b": "Sit together.",
+        "t": "Spot seats side by side at a glance."
+      },
       {
         "b": "Know your coach.",
         "t": "Coach and class are shown right above the map."
@@ -180,12 +214,18 @@
     "eyebrow": "How it works",
     "title": "Four stops from search to ticket",
     "steps": [
-      { "title": "Search", "text": "Choose where you are going and when." },
+      {
+        "title": "Search",
+        "text": "Choose where you are going and when."
+      },
       {
         "title": "Pick a train",
         "text": "Compare times, classes and seats left."
       },
-      { "title": "Choose seats", "text": "Tap your seats on the coach map." },
+      {
+        "title": "Choose seats",
+        "text": "Tap your seats on the coach map."
+      },
       {
         "title": "Get your QR",
         "text": "Pay and your ticket is ready on your phone."
@@ -232,5 +272,36 @@
     "about": "About",
     "contact": "Contact",
     "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold."
+  },
+  "auth": {
+    "tagLogin": "Passenger login",
+    "tagRegister": "New passenger",
+    "loginTitle": "Log in",
+    "registerTitle": "Create your account",
+    "phone": "Phone number",
+    "password": "Password",
+    "name": "Full name",
+    "nid": "NID number",
+    "nidHint": "10, 13 or 17 digits",
+    "namePlaceholder": "Your full name",
+    "phonePlaceholder": "01XXXXXXXXX",
+    "loginButton": "Log in",
+    "registerButton": "Create account",
+    "newHere": "New to Relgari?",
+    "registerLink": "Register",
+    "haveAccount": "Already registered?",
+    "loginLink": "Log in",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "close": "Close",
+    "stubTitle": "Passenger pass",
+    "stubSub": "Relgari Express",
+    "errors": {
+      "name": "Enter your full name.",
+      "phone": "Enter a valid mobile number, like 01712345678.",
+      "nid": "NID must be 10, 13 or 17 digits.",
+      "passwordShort": "Use at least 6 characters.",
+      "passwordEmpty": "Enter your password."
+    }
   }
 }
