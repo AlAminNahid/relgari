@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "title": "Relgari Train Tickets",
+    "description": "A friendlier way to book train tickets in Bangladesh. Search trains, pick your seat on a clear coach map and carry a QR ticket on your phone."
+  },
+  "brand": {
+    "rel": "Rel",
+    "gari": "gari",
+    "bn": "রেলগাড়ি",
+    "home": "Relgari home"
+  },
+  "nav": {
+    "routes": "Routes",
+    "features": "Features",
+    "seats": "Seat picker",
+    "how": "How it works",
+    "login": "Log in",
+    "book": "Book a ticket",
+    "menu": "Menu",
+    "language": "Language"
+  },
+  "hero": {
+    "badge": "New",
+    "badgeText": "A calmer way to book trains",
+    "title1": "Your train seat in",
+    "title2": "under a minute.",
+    "lead": "Search, pick your exact seat on a clear coach map, pay, and carry a QR ticket on your phone. Built for Bangladesh's railways, in Bangla and English.",
+    "points": ["Visual seat map", "QR e-ticket", "Bangla and English"]
+  },
+  "search": {
+    "from": "From",
+    "to": "To",
+    "date": "Journey date",
+    "class": "Class",
+    "submit": "Search trains",
+    "placeholderFrom": "e.g. Dhaka",
+    "placeholderTo": "e.g. Chattogram",
+    "swap": "Swap from and to",
+    "pickDate": "Choose a date",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "enterBoth": "Enter both stations.",
+    "enterDifferent": "Enter two different stations.",
+    "searching": "Searching {from} to {to} on {date} in {cls}. The results screen is the next page to design."
+  },
+  "classNames": {
+    "shovan": "Shovan",
+    "schair": "S_Chair",
+    "snigdha": "Snigdha",
+    "ac": "AC Cabin"
+  },
+  "ticket": {
+    "title": "Relgari E-Ticket",
+    "confirmed": "CONFIRMED",
+    "fromName": "Dhaka",
+    "toName": "Chattogram",
+    "depart": "06:40",
+    "arrive": "12:05",
+    "coach": "Coach",
+    "seat": "Seat",
+    "class": "Class",
+    "seatValue": "14, 15",
+    "gate": "Show this at the gate",
+    "gateNote": "Works offline. Sample ticket for the design concept.",
+    "held": "Seats held 05:00"
+  },
+  "strip": [
+    { "value": "3", "unit": "taps", "text": "from home to seat map" },
+    { "value": "5", "unit": "min", "text": "seat hold with a live timer" },
+    { "value": "2", "unit": "languages", "text": "Bangla and English" },
+    { "value": "0", "unit": "paper", "text": "QR ticket on your phone" }
+  ],
+  "departures": {
+    "eyebrow": "Popular routes",
+    "title": "See what is running, at a glance",
+    "body": "A departure board that reads like the station, with seats left per class so you decide before you tap.",
+    "boardTitle": "Today's departures · sample data",
+    "headers": {
+      "train": "Train",
+      "route": "Route",
+      "departs": "Departs",
+      "arrives": "Arrives",
+      "classes": "Classes"
+    },
+    "rows": [
+      {
+        "name": "Subarna Express",
+        "route": "Dhaka → Chattogram",
+        "departs": "07:00",
+        "arrives": "12:30",
+        "tags": ["snigdha", "schair"],
+        "few": false
+      },
+      {
+        "name": "Parabat Express",
+        "route": "Dhaka → Sylhet",
+        "departs": "06:20",
+        "arrives": "12:45",
+        "tags": ["snigdha", "shovan"],
+        "few": false
+      },
+      {
+        "name": "Silk City Express",
+        "route": "Dhaka → Rajshahi",
+        "departs": "15:10",
+        "arrives": "21:25",
+        "tags": ["schair"],
+        "few": true
+      },
+      {
+        "name": "Sundarban Express",
+        "route": "Dhaka → Khulna",
+        "departs": "20:00",
+        "arrives": "05:15",
+        "tags": ["ac", "snigdha"],
+        "few": false
+      }
+    ],
+    "few": "Few seats",
+    "book": "Book →",
+    "note": "Times above are sample content for this design concept, not a live timetable."
+  },
+  "features": {
+    "eyebrow": "Why Relgari",
+    "title": "Everything you need, nothing you do not",
+    "body": "Each screen has one job and one big button. No hunting through menus.",
+    "items": [
+      {
+        "title": "One-box search",
+        "text": "Pick a station, swap direction, choose a date. Recent routes are remembered for next time."
+      },
+      {
+        "title": "Visual seat map",
+        "text": "See the real coach layout. Free, held and sold seats look different by shape and color, so nobody guesses."
+      },
+      {
+        "title": "Fair seat hold",
+        "text": "Your seats are kept for five minutes with a timer you can always see. If time runs out, pick again in one tap."
+      },
+      {
+        "title": "Price before you pay",
+        "text": "The full fare shows from the results page onward. The number you see is the number you pay."
+      },
+      {
+        "title": "QR e-ticket",
+        "text": "Your ticket opens fast and works offline. Download a PDF or share it with a family member."
+      },
+      {
+        "title": "Bangla and English",
+        "text": "Switch language any time. Clear messages in plain words when something goes wrong."
+      }
+    ]
+  },
+  "seats": {
+    "eyebrow": "Seat map",
+    "title": "Pick seats like you pick a cinema seat",
+    "body": "A preview of the coach map. Tap a seat to see how selection looks. Booking starts from the search at the top.",
+    "points": [
+      {
+        "b": "See every seat.",
+        "t": "Free, selected and sold seats look different, so you never guess."
+      },
+      { "b": "Sit together.", "t": "Spot seats side by side at a glance." },
+      {
+        "b": "Know your coach.",
+        "t": "Coach and class are shown right above the map."
+      }
+    ],
+    "coach": "Coach KA · Snigdha",
+    "preview": "Preview",
+    "free": "Free",
+    "selected": "Selected",
+    "sold": "Sold",
+    "note": "Preview only. Seats are not reserved here.",
+    "mapLabel": "Coach seat map preview",
+    "seatLabel": "Seat {n}",
+    "seatSold": "Seat {n}, sold"
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Four stops from search to ticket",
+    "steps": [
+      { "title": "Search", "text": "Choose where you are going and when." },
+      {
+        "title": "Pick a train",
+        "text": "Compare times, classes and seats left."
+      },
+      { "title": "Choose seats", "text": "Tap your seats on the coach map." },
+      {
+        "title": "Get your QR",
+        "text": "Pay and your ticket is ready on your phone."
+      }
+    ]
+  },
+  "classes": {
+    "eyebrow": "Classes",
+    "title": "Know what you are choosing",
+    "body": "Plain descriptions next to each class, so first-time travellers are never unsure.",
+    "items": [
+      {
+        "key": "shovan",
+        "tag": "Budget",
+        "text": "Simple seats for short and everyday trips."
+      },
+      {
+        "key": "schair",
+        "tag": "Comfort",
+        "text": "Cushioned chairs with more legroom."
+      },
+      {
+        "key": "snigdha",
+        "tag": "Air-conditioned",
+        "text": "Cool, quiet coaches for long journeys."
+      },
+      {
+        "key": "ac",
+        "tag": "Overnight",
+        "text": "Private berths for night trains."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready for a smoother journey?",
+    "text": "Start with a search. It takes less than a minute.",
+    "button": "Search trains"
+  },
+  "footer": {
+    "tagline": "A friendlier way to book train tickets. রেলে ভ্রমণ হোক সহজ।",
+    "product": "Product",
+    "help": "Help",
+    "project": "Project",
+    "about": "About",
+    "contact": "Contact",
+    "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold."
+  }
+}

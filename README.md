@@ -14,14 +14,38 @@ relgari/
 
 A `packages/shared` folder for types used by both apps will be added later, when it is first needed.
 
+### Inside `apps/web`
+
+```
+apps/web/
+├── messages/          English and Bangla text (en.json, bn.json)
+└── src/
+    ├── app/
+    │   ├── (marketing)/   Public pages: layout.tsx (header and footer) and page.tsx (landing page)
+    │   ├── layout.tsx     Root layout: fonts, language
+    │   └── globals.css    Theme colors
+    ├── components/
+    │   ├── ui/            shadcn/ui components (Button, Input, Select...)
+    │   ├── layout/        Navbar, Footer, Logo, language switch
+    │   └── sections/      Page sections, one folder per feature
+    │       └── landing/   Landing page. Single-file sections sit here; a section with
+    │                      several files gets its own folder (hero/, departure-board/)
+    ├── lib/               utils.ts and i18n (language cookie and text loading)
+    ├── hooks/             Custom React hooks
+    ├── types/             TypeScript types
+    └── config/site.ts     Site-wide settings
+```
+
+Folders for login, signup and the dashboard (`(auth)`, `(dashboard)`) are added when those features are built.
+
 ## Tech stack
 
-| Part | Choice |
-|---|---|
+| Part     | Choice                            |
+| -------- | --------------------------------- |
 | Frontend | Next.js, TypeScript, Tailwind CSS |
-| Backend | NestJS, TypeScript |
-| Database | PostgreSQL (not set up yet) |
-| ORM | Prisma (not set up yet) |
+| Backend  | NestJS, TypeScript                |
+| Database | PostgreSQL (not set up yet)       |
+| ORM      | Prisma (not set up yet)           |
 
 ## Running the apps
 
