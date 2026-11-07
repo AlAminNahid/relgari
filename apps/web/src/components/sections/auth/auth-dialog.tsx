@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AuthTicket } from "@/components/sections/auth/auth-ticket";
 import { LoginForm } from "@/components/sections/auth/login-form";
@@ -18,7 +19,13 @@ export function AuthDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useTranslations("auth");
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
+
+  function handleSuccess() {
+    onOpenChange(false);
+    router.refresh();
+  }
 
   return (
     <Dialog
@@ -41,9 +48,15 @@ export function AuthDialog({
         >
           <AuthTicket tag={mode === "login" ? t("tagLogin") : t("tagRegister")}>
             {mode === "login" ? (
-              <LoginForm onSwitch={() => setMode("register")} />
+              <LoginForm
+                onSwitch={() => setMode("register")}
+                onSuccess={handleSuccess}
+              />
             ) : (
-              <RegisterForm onSwitch={() => setMode("login")} />
+              <RegisterForm
+                onSwitch={() => setMode("login")}
+                onSuccess={handleSuccess}
+              />
             )}
           </AuthTicket>
         </DialogPrimitive.Popup>

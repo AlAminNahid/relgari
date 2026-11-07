@@ -17,7 +17,9 @@
     "login": "Log in",
     "book": "Book a ticket",
     "menu": "Menu",
-    "language": "Language"
+    "language": "Language",
+    "logout": "Log out",
+    "greeting": "Hi, {name}"
   },
   "hero": {
     "badge": "New",
@@ -25,11 +27,7 @@
     "title1": "Your train seat in",
     "title2": "under a minute.",
     "lead": "Search, pick your exact seat on a clear coach map, pay, and carry a QR ticket on your phone. Built for Bangladesh's railways, in Bangla and English.",
-    "points": [
-      "Visual seat map",
-      "QR e-ticket",
-      "Bangla and English"
-    ]
+    "points": ["Visual seat map", "QR e-ticket", "Bangla and English"]
   },
   "search": {
     "from": "From",
@@ -108,10 +106,7 @@
         "route": "Dhaka → Chattogram",
         "departs": "07:00",
         "arrives": "12:30",
-        "tags": [
-          "snigdha",
-          "schair"
-        ],
+        "tags": ["snigdha", "schair"],
         "few": false
       },
       {
@@ -119,10 +114,7 @@
         "route": "Dhaka → Sylhet",
         "departs": "06:20",
         "arrives": "12:45",
-        "tags": [
-          "snigdha",
-          "shovan"
-        ],
+        "tags": ["snigdha", "shovan"],
         "few": false
       },
       {
@@ -130,9 +122,7 @@
         "route": "Dhaka → Rajshahi",
         "departs": "15:10",
         "arrives": "21:25",
-        "tags": [
-          "schair"
-        ],
+        "tags": ["schair"],
         "few": true
       },
       {
@@ -140,10 +130,7 @@
         "route": "Dhaka → Khulna",
         "departs": "20:00",
         "arrives": "05:15",
-        "tags": [
-          "ac",
-          "snigdha"
-        ],
+        "tags": ["ac", "snigdha"],
         "few": false
       }
     ],
@@ -301,7 +288,19 @@
       "phone": "Enter a valid mobile number, like 01712345678.",
       "nid": "NID must be 10, 13 or 17 digits.",
       "passwordShort": "Use at least 6 characters.",
-      "passwordEmpty": "Enter your password."
+      "passwordEmpty": "Enter your password.",
+      "passwordLong": "Use at most 128 characters."
+    },
+    "submitting": "Please wait…",
+    "apiErrors": {
+      "INVALID_CREDENTIALS": "Wrong phone number or password.",
+      "PHONE_TAKEN": "This phone number is already registered. Try logging in.",
+      "NID_TAKEN": "An account with this NID already exists.",
+      "TOO_MANY_REQUESTS": "Too many tries. Please wait a few minutes and try again.",
+      "INTERNAL": "Something went wrong on our side. Please try again.",
+      "NETWORK": "Could not reach the server. Check your connection and try again.",
+      "UNAUTHENTICATED": "Please log in again.",
+      "VALIDATION_FAILED": "Please check the highlighted fields."
     }
   }
 }

@@ -1,4 +1,3 @@
-// Site-wide settings that more than one component needs.
 export const siteConfig = {
   name: "Relgari",
   nameBn: "রেলগাড়ি",
@@ -17,3 +16,5 @@ export type ClassKey = (typeof CLASS_KEYS)[number];
 export const MAX_DAYS_AHEAD = 30;
 
 export const ROUTE_EVENT = "relgari:route";
+
+export const SESSION_COOKIE = "relgari_session";

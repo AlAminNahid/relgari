@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { AuthUser } from "@/types/api";
 import { AuthDialog } from "@/components/sections/auth/auth-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -15,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { NAV_LINKS } from "@/config/site";
 import { cn } from "@/lib/utils";
+import { logout } from "@/services/auth";
 import { LanguageSwitch } from "@/components/layout/language-switch";
 import { Logo } from "@/components/layout/logo";
 
@@ -23,10 +26,23 @@ const bookClass = cn(
   "h-10 rounded-[10px] bg-brand-red px-4 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(226,38,59,.7)] hover:bg-brand-red/90",
 );
 
-export function Navbar() {
+export function Navbar({ user }: { user: AuthUser | null }) {
   const t = useTranslations("nav");
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+      setMenuOpen(false);
+      router.refresh();
+    }
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
@@ -45,13 +61,32 @@ export function Navbar() {
         </nav>
         <div className="ml-auto flex items-center gap-2.5 lg:ml-0">
           <LanguageSwitch />
-          <Button
-            variant="outline"
-            onClick={() => setAuthOpen(true)}
-            className="hidden h-10 rounded-[10px] px-4 text-[15px] font-semibold sm:inline-flex"
-          >
-            {t("login")}
-          </Button>
+          {user ? (
+            <>
+              <span
+                title={user.name}
+                className="hidden max-w-[150px] truncate text-[14.5px] text-muted-foreground md:inline"
+              >
+                {t("greeting", { name: user.name })}
+              </span>
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="hidden h-10 rounded-[10px] px-4 text-[15px] font-semibold sm:inline-flex"
+              >
+                {t("logout")}
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() => setAuthOpen(true)}
+              className="hidden h-10 rounded-[10px] px-4 text-[15px] font-semibold sm:inline-flex"
+            >
+              {t("login")}
+            </Button>
+          )}
           <a href="#search" className={cn(bookClass, "hidden sm:inline-flex")}>
             {t("book")}
           </a>
@@ -89,16 +124,32 @@ export function Navbar() {
                 ))}
               </nav>
               <div className="mt-auto flex flex-col gap-2 p-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setAuthOpen(true);
-                  }}
-                  className="h-11 rounded-[10px] text-base font-semibold"
-                >
-                  {t("login")}
-                </Button>
+                {user ? (
+                  <>
+                    <p className="truncate px-1 text-sm text-muted-foreground">
+                      {t("greeting", { name: user.name })}
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={handleLogout}
+                      disabled={loggingOut}
+                      className="h-11 rounded-[10px] text-base font-semibold"
+                    >
+                      {t("logout")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setAuthOpen(true);
+                    }}
+                    className="h-11 rounded-[10px] text-base font-semibold"
+                  >
+                    {t("login")}
+                  </Button>
+                )}
                 <SheetClose
                   nativeButton={false}
                   render={
