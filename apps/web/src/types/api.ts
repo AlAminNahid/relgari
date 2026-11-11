@@ -21,3 +21,9 @@ export interface AuthUser {
   nid: string;
   createdAt: string;
 }
+
+export interface Station {
+  code: string;
+  nameEn: string;
+  nameBn: string;
+}

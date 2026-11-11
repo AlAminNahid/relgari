@@ -14,6 +14,8 @@ import { validateEnv } from './config/env.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { THROTTLE } from './shared/constants/throttle.constants.js';
 import { ApiExceptionFilter } from './shared/filters/api-exception.filter.js';
+import { StationsModule } from './stations/stations.module.js';
+import { TrainsModule } from './trains/trains.module.js';
 
 function accountPhone(req: Request): string {
   const phone = (req.body as { phone?: unknown } | undefined)?.phone;
@@ -41,6 +43,8 @@ function accountPhone(req: Request): string {
     ]),
     PrismaModule,
     AuthModule,
+    StationsModule,
+    TrainsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

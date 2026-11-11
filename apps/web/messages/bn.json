@@ -41,6 +41,8 @@
     "pickDate": "তারিখ বাছুন",
     "prevMonth": "আগের মাস",
     "nextMonth": "পরের মাস",
+    "noStation": "কোনো স্টেশন পাওয়া যায়নি",
+    "pickStation": "তালিকা থেকে দুটি স্টেশনই বেছে নিন।",
     "enterBoth": "দুটি স্টেশনের নামই লিখুন।",
     "enterDifferent": "দুটি ভিন্ন স্টেশন লিখুন।",
     "searching": "{from} থেকে {to}, {date} তারিখে {cls} শ্রেণির ট্রেন খোঁজা হচ্ছে। ফলাফলের পাতা পরের ধাপে ডিজাইন হবে।"
@@ -84,32 +86,32 @@
       {
         "name": "সুবর্ণ এক্সপ্রেস",
         "route": "ঢাকা → চট্টগ্রাম",
-        "departs": "০৭:০০",
-        "arrives": "১২:৩০",
+        "departs": "১৬:৩০",
+        "arrives": "২১:২৫",
         "tags": ["snigdha", "schair"],
         "few": false
       },
       {
         "name": "পারাবত এক্সপ্রেস",
         "route": "ঢাকা → সিলেট",
-        "departs": "০৬:২০",
-        "arrives": "১২:৪৫",
+        "departs": "০৬:৩০",
+        "arrives": "১৩:০০",
         "tags": ["snigdha", "shovan"],
         "few": false
       },
       {
         "name": "সিল্ক সিটি এক্সপ্রেস",
         "route": "ঢাকা → রাজশাহী",
-        "departs": "১৫:১০",
-        "arrives": "২১:২৫",
+        "departs": "১৪:৩০",
+        "arrives": "২০:২০",
         "tags": ["schair"],
         "few": true
       },
       {
         "name": "সুন্দরবন এক্সপ্রেস",
         "route": "ঢাকা → খুলনা",
-        "departs": "২০:০০",
-        "arrives": "০৫:১৫",
+        "departs": "০৮:০০",
+        "arrives": "১৫:৪০",
         "tags": ["ac", "snigdha"],
         "few": false
       }

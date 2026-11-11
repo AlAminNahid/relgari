@@ -12,7 +12,6 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { bn as bnLocale, enUS } from "react-day-picker/locale";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -26,12 +25,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StationInput } from "@/components/sections/landing/hero/station-input";
 import { CLASS_KEYS, MAX_DAYS_AHEAD, ROUTE_EVENT } from "@/config/site";
 import { useToday } from "@/hooks/use-today";
+import { findStation, stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
+import type { Station } from "@/types/api";
 
 type Result =
-  | { kind: "both" | "same" }
+  | { kind: "both" | "same" | "unknown" }
   | { kind: "ok"; from: string; to: string; date: Date; cls: string };
 
 function addDays(d: Date, n: number) {
@@ -40,7 +42,7 @@ function addDays(d: Date, n: number) {
   return x;
 }
 
-export function SearchBar() {
+export function SearchBar({ stations }: { stations: Station[] }) {
   const t = useTranslations("search");
   const tc = useTranslations("classNames");
   const locale = useLocale();
@@ -82,12 +84,19 @@ export function SearchBar() {
     const f = from.trim();
     const tt = to.trim();
     if (!f || !tt) return setResult({ kind: "both" });
-    if (f.toLowerCase() === tt.toLowerCase())
-      return setResult({ kind: "same" });
+    // With a station list, both names must be real stations. Without one (API unreachable) typed names pass.
+    const fromStation = findStation(stations, f);
+    const toStation = findStation(stations, tt);
+    if (stations.length > 0 && (!fromStation || !toStation))
+      return setResult({ kind: "unknown" });
+    const same = fromStation
+      ? fromStation.code === toStation?.code
+      : f.toLowerCase() === tt.toLowerCase();
+    if (same) return setResult({ kind: "same" });
     setResult({
       kind: "ok",
-      from: f,
-      to: tt,
+      from: fromStation ? stationName(fromStation, locale) : f,
+      to: toStation ? stationName(toStation, locale) : tt,
       date: date ?? new Date(),
       cls,
     });
@@ -95,6 +104,7 @@ export function SearchBar() {
 
   let message = "";
   if (result?.kind === "both") message = t("enterBoth");
+  else if (result?.kind === "unknown") message = t("pickStation");
   else if (result?.kind === "same") message = t("enterDifferent");
   else if (result?.kind === "ok") {
     message = t("searching", {
@@ -124,19 +134,15 @@ export function SearchBar() {
       </h2>
       <div className="grid grid-cols-1 items-end gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,.9fr)_auto]">
         <Field label={t("from")} htmlFor="from-in">
-          <div className="relative">
-            <CircleDotIcon className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-primary" />
-            <Input
-              id="from-in"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              placeholder={t("placeholderFrom")}
-              autoComplete="off"
-              autoCapitalize="words"
-              spellCheck={false}
-              className="h-[52px] rounded-xl border-transparent bg-white pl-11 pr-3 text-[17px] font-semibold text-foreground placeholder:font-normal md:text-[17px]"
-            />
-          </div>
+          <StationInput
+            id="from-in"
+            stations={stations}
+            value={from}
+            onChange={setFrom}
+            placeholder={t("placeholderFrom")}
+            emptyText={t("noStation")}
+            icon={<CircleDotIcon />}
+          />
         </Field>
 
         <Button
@@ -151,19 +157,15 @@ export function SearchBar() {
         </Button>
 
         <Field label={t("to")} htmlFor="to-in">
-          <div className="relative">
-            <MapPinIcon className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-primary" />
-            <Input
-              id="to-in"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              placeholder={t("placeholderTo")}
-              autoComplete="off"
-              autoCapitalize="words"
-              spellCheck={false}
-              className="h-[52px] rounded-xl border-transparent bg-white pl-11 pr-3 text-[17px] font-semibold text-foreground placeholder:font-normal md:text-[17px]"
-            />
-          </div>
+          <StationInput
+            id="to-in"
+            stations={stations}
+            value={to}
+            onChange={setTo}
+            placeholder={t("placeholderTo")}
+            emptyText={t("noStation")}
+            icon={<MapPinIcon />}
+          />
         </Field>
 
         <Field

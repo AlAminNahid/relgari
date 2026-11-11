@@ -1,5 +1,6 @@
 // Relgari database. Tables are added one feature at a time.
 // Feature 1 (login and registration): users and sessions.
+// Feature 2 (the railway itself): stations, trains, train stops, coaches and seats.
 
 generator client {
   provider            = "prisma-client"
@@ -46,4 +47,92 @@ model Session {
   @@index([userId])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+// The names match the class keys the website uses.
+enum SeatClass {
+  shovan
+  schair
+  snigdha
+  ac
+
+  @@map("seat_class")
+}
+
+model Station {
+  id     String @id @default(uuid(7))
+  code   String @unique // short code shown on tickets, e.g. DAC
+  nameEn String @map("name_en")
+  nameBn String @map("name_bn")
+
+  stops TrainStop[]
+
+  @@map("stations")
+}
+
+model Train {
+  id     String @id @default(uuid(7))
+  number Int    @unique // the public train number, e.g. 701
+  nameEn String @map("name_en")
+  nameBn String @map("name_bn")
+  // The weekday the train does not run: 0 is Sunday, 6 is Saturday. Empty means it runs every day.
+  offDay Int?   @map("off_day")
+
+  stops   TrainStop[]
+  coaches Coach[]
+
+  @@map("trains")
+}
+
+// One row per station a train calls at, in order. A journey is any earlier stop to any later stop.
+model TrainStop {
+  id        String @id @default(uuid(7))
+  trainId   String @map("train_id")
+  stationId String @map("station_id")
+  sequence  Int // 1 is the first station
+
+  // Minutes after midnight of the day the train starts. 1440 or more means the next day,
+  // so an overnight train needs no separate date column.
+  arrivalMinute   Int? @map("arrival_minute") // empty at the first station
+  departureMinute Int? @map("departure_minute") // empty at the last station
+
+  distanceKm Int @map("distance_km") // from the first station; fares are worked out from this
+
+  train   Train   @relation(fields: [trainId], references: [id], onDelete: Cascade)
+  station Station @relation(fields: [stationId], references: [id])
+
+  @@unique([trainId, sequence])
+  @@unique([trainId, stationId])
+  @@index([stationId])
+  @@map("train_stops")
+}
+
+model Coach {
+  id          String    @id @default(uuid(7))
+  trainId     String    @map("train_id")
+  code        String // printed on the coach and the ticket, e.g. KA
+  seatClass   SeatClass @map("seat_class")
+  position    Int // 1 is the coach right behind the engine
+  rows        Int
+  seatsPerRow Int       @map("seats_per_row")
+
+  train Train  @relation(fields: [trainId], references: [id], onDelete: Cascade)
+  seats Seat[]
+
+  @@unique([trainId, code])
+  @@unique([trainId, position])
+  @@map("coaches")
+}
+
+// Seats are stored once per coach, not once per day. Whether a seat is free on a date
+// will come from the bookings for that date (feature 4).
+model Seat {
+  id      String @id @default(uuid(7))
+  coachId String @map("coach_id")
+  number  Int // counted row by row, starting at 1
+
+  coach Coach @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  @@unique([coachId, number])
+  @@map("seats")
 }

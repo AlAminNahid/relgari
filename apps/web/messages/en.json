@@ -41,6 +41,8 @@
     "pickDate": "Choose a date",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
+    "noStation": "No station found",
+    "pickStation": "Choose both stations from the list.",
     "enterBoth": "Enter both stations.",
     "enterDifferent": "Enter two different stations.",
     "searching": "Searching {from} to {to} on {date} in {cls}. The results screen is the next page to design."
@@ -84,32 +86,32 @@
       {
         "name": "Subarna Express",
         "route": "Dhaka → Chattogram",
-        "departs": "07:00",
-        "arrives": "12:30",
+        "departs": "16:30",
+        "arrives": "21:25",
         "tags": ["snigdha", "schair"],
         "few": false
       },
       {
         "name": "Parabat Express",
         "route": "Dhaka → Sylhet",
-        "departs": "06:20",
-        "arrives": "12:45",
+        "departs": "06:30",
+        "arrives": "13:00",
         "tags": ["snigdha", "shovan"],
         "few": false
       },
       {
         "name": "Silk City Express",
         "route": "Dhaka → Rajshahi",
-        "departs": "15:10",
-        "arrives": "21:25",
+        "departs": "14:30",
+        "arrives": "20:20",
         "tags": ["schair"],
         "few": true
       },
       {
         "name": "Sundarban Express",
         "route": "Dhaka → Khulna",
-        "departs": "20:00",
-        "arrives": "05:15",
+        "departs": "08:00",
+        "arrives": "15:40",
         "tags": ["ac", "snigdha"],
         "few": false
       }

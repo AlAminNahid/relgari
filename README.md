@@ -31,8 +31,9 @@ apps/web/
     │       │              several files gets its own folder (hero/, departure-board/)
     │       └── auth/      Login and registration popup
     ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
-    │                      auth.server.ts (who is signed in, used by the server)
-    ├── lib/               validations.ts (form rules), i18n/, utils.ts
+    │                      auth.server.ts (who is signed in, used by the server),
+    │                      stations.server.ts (the station list for the search form)
+    ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station), i18n/, utils.ts
     ├── hooks/             Custom React hooks
     ├── types/             TypeScript types
     └── config/site.ts     Site-wide settings
@@ -45,6 +46,8 @@ Each feature has its own folder with the same pieces: `controllers/` (the routes
 ```
 apps/api/
 ├── prisma/                schema.prisma and the migrations (database changes, one per feature)
+│   └── seed/              Railway data: stations.json and trains.json (the real stations, stops, times and off days),
+│                          data.ts (reads them and gives each train its coaches) and seed.ts (loads it all)
 └── src/
     ├── auth/              Login, registration, logout, current user
     │   ├── controllers/   auth.controller.ts (the /auth routes)
@@ -58,10 +61,20 @@ apps/api/
     │   │                  nid-crypto.service.ts (hashes and encrypts the NID)
     │   ├── dto/           create-user.dto.ts, auth-user.dto.ts (the user the website sees)
     │   └── users.module.ts
+    ├── stations/          The stations table
+    │   ├── controllers/   stations.controller.ts (the /stations route)
+    │   ├── services/      stations.service.ts (lists every station)
+    │   ├── dto/           station.dto.ts (the station the website sees)
+    │   └── stations.module.ts
+    ├── trains/            Trains, their stops, coaches and seats (no routes yet: search comes next)
+    │   ├── services/      trains.service.ts (one train with its route and coaches),
+    │   │                  fare.service.ts (works out a fare from distance and class)
+    │   ├── dto/           train-detail.dto.ts (what a train is loaded with)
+    │   └── trains.module.ts
     ├── prisma/            Database connection
     ├── config/env.ts      Checks the .env settings when the server starts
     ├── shared/            Used by many features
-    │   ├── constants/     Fixed values: session and input rules, hashing settings, rate limits
+    │   ├── constants/     Fixed values: session and input rules, hashing settings, rate limits, fare rates
     │   ├── decorators/    @CurrentUser()
     │   ├── filters/       Turns every error into { code }
     │   ├── guards/        AuthGuard: only lets signed-in users through
@@ -101,12 +114,21 @@ Open `apps/api/.env` and fill in the two secrets. Make each one with:
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
-Then create the tables and install the website:
+Then create the tables, load the sample railway data and install the website:
 
 ```bash
 npx prisma migrate deploy
+npm run db:seed
 cd ../web && npm install
 ```
+
+`npm run db:seed` loads 225 stations and 122 intercity trains (numbers 701 to 828) with their stops, coaches and seats. It takes about a minute and is safe to run again: rows are updated, not duplicated, and anything no longer in the data files is removed.
+
+Where the data comes from:
+
+- **Real:** train numbers, stops, arrival and departure times and weekly off days, as published by the Bangladesh Railway e-ticket service in November 2026. They live in `apps/api/prisma/seed/stations.json` and `trains.json`. Timetables change, so treat them as a snapshot.
+- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate) and coaches (every train gets the same set, plus an AC coach on overnight trains).
+- **Written by hand:** the Bangla station and train names.
 
 ## Running the apps
 
@@ -128,15 +150,6 @@ npm run dev
 
 The website never calls the API directly. It calls `/api/...` on its own address and Next.js forwards the request to the API (see `rewrites` in `apps/web/next.config.ts`). To point at a different API address, set `API_URL` (see `apps/web/.env.example`).
 
-### Keep the two sets of rules in step
-
-The website checks the form before sending it, and the API checks again (it must never trust the browser). The rules live in two files that should always match:
-`apps/web/src/lib/validations.ts` and `apps/api/src/auth/dto/`. The error types are in `apps/web/src/types/api.ts` and `apps/api/src/shared/types/api.types.ts`.
-
-## Tests
-
-There are no automated tests at the moment. `npm test` (in `apps/api`) runs Vitest and passes when it finds none. To add one, create a `*.spec.ts` file next to the code it tests.
-
 ## How login works
 
 - **Passwords** are hashed with argon2id. The password itself is never stored or logged.
@@ -154,13 +167,14 @@ There are no automated tests at the moment. `npm test` (in `apps/api`) runs Vite
 | `POST /auth/login` | Sign in |
 | `POST /auth/logout` | End the session |
 | `GET /auth/me` | The signed-in user, including their own NID |
+| `GET /stations` | Every station (code, English name, Bangla name). Public |
 
 ## Build order
 
 The project is built one feature at a time. Database tables are added only when a feature needs them.
 
 1. Landing page and login or registration (users and sessions tables) ✅
-2. Stations, trains, coaches and seats
+2. Stations, trains, coaches and seats (stations, trains, train_stops, coaches and seats tables) ✅
 3. Train search
 4. Seat map and seat holds
 5. Fake payment and QR tickets

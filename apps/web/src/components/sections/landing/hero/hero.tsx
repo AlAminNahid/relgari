@@ -2,8 +2,9 @@ import { useTranslations } from "next-intl";
 import { SearchBar } from "@/components/sections/landing/hero/search-bar";
 import { TicketPreview } from "@/components/sections/landing/hero/ticket-preview";
 import { Track } from "@/components/sections/landing/hero/track";
+import type { Station } from "@/types/api";
 
-export function Hero() {
+export function Hero({ stations }: { stations: Station[] }) {
   const t = useTranslations("hero");
   const points = t.raw("points") as string[];
 
@@ -51,7 +52,7 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1140px] px-5 pb-9">
-        <SearchBar />
+        <SearchBar stations={stations} />
       </div>
       <Track />
     </section>
