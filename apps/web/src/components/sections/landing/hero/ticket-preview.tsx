@@ -42,11 +42,11 @@ export function TicketPreview() {
         <div className="px-5 py-[18px]">
           <div className="flex items-center gap-3">
             <div>
-              <div className="text-[28px] font-extrabold text-brand-deep">
-                DAC
+              <div className="text-[22px] font-extrabold leading-tight text-brand-deep">
+                {t("fromName")}
               </div>
               <small className="block font-mono text-xs text-muted-foreground">
-                {t("fromName")} · {t("depart")}
+                {t("depart")}
               </small>
             </div>
             <div
@@ -59,15 +59,21 @@ export function TicketPreview() {
               <span className="absolute -right-0.5 -top-1 border-[5px] border-transparent border-l-[8px] border-l-primary" />
             </div>
             <div className="text-right">
-              <div className="text-[28px] font-extrabold text-brand-deep">
-                CGP
+              <div className="text-[22px] font-extrabold leading-tight text-brand-deep">
+                {t("toName")}
               </div>
               <small className="block font-mono text-xs text-muted-foreground">
-                {t("toName")} · {t("arrive")}
+                {t("arrive")}
               </small>
             </div>
           </div>
-          <div className="mt-[18px] grid grid-cols-3 gap-2.5">
+          <div className="mt-[18px] rounded-lg bg-background px-2.5 py-2">
+            <small className="block font-mono text-[11px] uppercase text-muted-foreground">
+              {t("date")}
+            </small>
+            <b>{t("dateValue")}</b>
+          </div>
+          <div className="mt-2.5 grid grid-cols-3 gap-2.5">
             {[
               [t("coach"), "KA"],
               [t("seat"), t("seatValue")],

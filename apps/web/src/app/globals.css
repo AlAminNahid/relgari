@@ -152,14 +152,43 @@ html[lang="bn"] h3 {
 /* Train that slowly crosses the rails under the hero. */
 @keyframes train-run {
   to {
-    left: 100%;
+    transform: translateX(calc(100vw + 700px));
+  }
+}
+@keyframes train-wheel {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes train-smoke {
+  from {
+    opacity: 0.55;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate(-26px, -7px) scale(2.2);
   }
 }
 .animate-train {
-  animation: train-run 16s linear infinite;
+  animation: train-run 18s linear infinite;
+}
+.train-wheel,
+.train-smoke {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.train-wheel {
+  animation: train-wheel 0.4s linear infinite;
+}
+.train-smoke {
+  opacity: 0;
+  animation: train-smoke 1.5s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-train {
+  .animate-train,
+  .train-wheel,
+  .train-smoke {
     animation: none;
   }
   html {

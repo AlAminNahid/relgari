@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeftRightIcon, CalendarDaysIcon } from "lucide-react";
+import {
+  ArrowLeftRightIcon,
+  CalendarDaysIcon,
+  CircleDotIcon,
+  MapPinIcon,
+  TrainFrontIcon,
+} from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { bn as bnLocale, enUS } from "react-day-picker/locale";
 import { Button } from "@/components/ui/button";
@@ -104,20 +110,33 @@ export function SearchBar() {
       id="search"
       onSubmit={onSubmit}
       noValidate
-      className="scroll-mt-24 rounded-[14px] border bg-card p-4 shadow-[0_18px_40px_-26px_rgba(6,56,43,.45)] sm:px-[18px]"
+      className="scroll-mt-24 rounded-[18px] p-5 text-white shadow-[0_26px_50px_-24px_rgba(6,56,43,.75)] sm:p-6"
+      style={{
+        background:
+          "repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 12px), linear-gradient(135deg,var(--primary),var(--brand-deep) 70%)",
+      }}
     >
+      <h2 className="mb-4 flex items-center gap-2.5 text-[22px] font-extrabold leading-tight tracking-tight">
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/12">
+          <TrainFrontIcon className="size-5" />
+        </span>
+        {t("title")}
+      </h2>
       <div className="grid grid-cols-1 items-end gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,.9fr)_auto]">
         <Field label={t("from")} htmlFor="from-in">
-          <Input
-            id="from-in"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            placeholder={t("placeholderFrom")}
-            autoComplete="off"
-            autoCapitalize="words"
-            spellCheck={false}
-            className="h-11 rounded-[10px] bg-background px-3 text-[15.5px]"
-          />
+          <div className="relative">
+            <CircleDotIcon className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-primary" />
+            <Input
+              id="from-in"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              placeholder={t("placeholderFrom")}
+              autoComplete="off"
+              autoCapitalize="words"
+              spellCheck={false}
+              className="h-[52px] rounded-xl border-transparent bg-white pl-11 pr-3 text-[17px] font-semibold text-foreground placeholder:font-normal md:text-[17px]"
+            />
+          </div>
         </Field>
 
         <Button
@@ -126,22 +145,25 @@ export function SearchBar() {
           size="icon"
           onClick={swap}
           aria-label={t("swap")}
-          className="mb-[5px] size-[34px] justify-self-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground"
+          className="mb-[9px] size-[34px] justify-self-center rounded-full border-white/25 bg-white/12 text-white hover:bg-white hover:text-primary"
         >
           <ArrowLeftRightIcon className="rotate-90 sm:rotate-0" />
         </Button>
 
         <Field label={t("to")} htmlFor="to-in">
-          <Input
-            id="to-in"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            placeholder={t("placeholderTo")}
-            autoComplete="off"
-            autoCapitalize="words"
-            spellCheck={false}
-            className="h-11 rounded-[10px] bg-background px-3 text-[15.5px]"
-          />
+          <div className="relative">
+            <MapPinIcon className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-primary" />
+            <Input
+              id="to-in"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              placeholder={t("placeholderTo")}
+              autoComplete="off"
+              autoCapitalize="words"
+              spellCheck={false}
+              className="h-[52px] rounded-xl border-transparent bg-white pl-11 pr-3 text-[17px] font-semibold text-foreground placeholder:font-normal md:text-[17px]"
+            />
+          </div>
         </Field>
 
         <Field
@@ -153,7 +175,7 @@ export function SearchBar() {
             <PopoverTrigger
               id="date-btn"
               className={cn(
-                "flex h-11 w-full items-center justify-between gap-2 rounded-[10px] border-[1.5px] bg-background px-3 text-left text-[15.5px] font-medium outline-none transition-colors hover:border-primary/40 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 aria-expanded:border-ring",
+                "flex h-[52px] w-full items-center justify-between gap-2 rounded-xl bg-white px-3.5 text-left text-[16px] font-semibold text-foreground outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-white/50 aria-expanded:ring-3 aria-expanded:ring-white/50",
                 !date && "text-muted-foreground",
               )}
             >
@@ -200,7 +222,7 @@ export function SearchBar() {
           >
             <SelectTrigger
               id="cls-btn"
-              className="w-full rounded-[10px] bg-background px-3 text-[15.5px] font-medium data-[size=default]:h-11"
+              className="w-full rounded-xl border-transparent bg-white px-3.5 text-[16px] font-semibold text-foreground data-[size=default]:h-[52px]"
             >
               <SelectValue />
             </SelectTrigger>
@@ -216,7 +238,7 @@ export function SearchBar() {
 
         <Button
           type="submit"
-          className="h-11 rounded-[10px] bg-brand-red px-6 text-[15.5px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(226,38,59,.7)] hover:bg-brand-red/90 sm:col-span-3 lg:col-span-1"
+          className="h-[52px] rounded-xl bg-brand-red px-7 text-[16.5px] font-bold text-white shadow-[0_10px_22px_-8px_rgba(226,38,59,.9)] hover:bg-brand-red/90 sm:col-span-3 lg:col-span-1"
         >
           {t("submit")}
         </Button>
@@ -226,8 +248,8 @@ export function SearchBar() {
         aria-live="polite"
         className={cn(
           "text-sm",
-          message && "mt-2",
-          result?.kind === "ok" ? "text-primary" : "text-destructive",
+          message && "mt-3",
+          result?.kind === "ok" ? "text-[#9fe0c4]" : "text-[#ffb3bc]",
         )}
       >
         {message}
@@ -251,7 +273,7 @@ function Field({
     <div className={cn("min-w-0", className)}>
       <Label
         htmlFor={htmlFor}
-        className="mb-[5px] block font-mono text-[11px] font-medium uppercase tracking-[.08em] text-muted-foreground"
+        className="mb-[6px] block font-mono text-[11px] font-medium uppercase tracking-[.08em] text-[#bcd6cc]"
       >
         {label}
       </Label>

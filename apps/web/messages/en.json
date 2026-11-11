@@ -11,7 +11,6 @@
   },
   "nav": {
     "routes": "Routes",
-    "features": "Features",
     "seats": "Seat picker",
     "how": "How it works",
     "login": "Log in",
@@ -30,6 +29,7 @@
     "points": ["Visual seat map", "QR e-ticket", "Bangla and English"]
   },
   "search": {
+    "title": "Where are you going?",
     "from": "From",
     "to": "To",
     "date": "Journey date",
@@ -58,6 +58,8 @@
     "toName": "Chattogram",
     "depart": "06:40",
     "arrive": "12:05",
+    "date": "Journey date",
+    "dateValue": "Fri, 20 Nov 2026",
     "coach": "Coach",
     "seat": "Seat",
     "class": "Class",
@@ -66,28 +68,6 @@
     "gateNote": "Works offline. Sample ticket for the design concept.",
     "held": "Seats held 05:00"
   },
-  "strip": [
-    {
-      "value": "3",
-      "unit": "taps",
-      "text": "from home to seat map"
-    },
-    {
-      "value": "5",
-      "unit": "min",
-      "text": "seat hold with a live timer"
-    },
-    {
-      "value": "2",
-      "unit": "languages",
-      "text": "Bangla and English"
-    },
-    {
-      "value": "0",
-      "unit": "paper",
-      "text": "QR ticket on your phone"
-    }
-  ],
   "departures": {
     "eyebrow": "Popular routes",
     "title": "See what is running, at a glance",
@@ -138,37 +118,6 @@
     "book": "Book →",
     "note": "Times above are sample content for this design concept, not a live timetable."
   },
-  "features": {
-    "eyebrow": "Why Relgari",
-    "title": "Everything you need, nothing you do not",
-    "body": "Each screen has one job and one big button. No hunting through menus.",
-    "items": [
-      {
-        "title": "One-box search",
-        "text": "Pick a station, swap direction, choose a date. Recent routes are remembered for next time."
-      },
-      {
-        "title": "Visual seat map",
-        "text": "See the real coach layout. Free, held and sold seats look different by shape and color, so nobody guesses."
-      },
-      {
-        "title": "Fair seat hold",
-        "text": "Your seats are kept for five minutes with a timer you can always see. If time runs out, pick again in one tap."
-      },
-      {
-        "title": "Price before you pay",
-        "text": "The full fare shows from the results page onward. The number you see is the number you pay."
-      },
-      {
-        "title": "QR e-ticket",
-        "text": "Your ticket opens fast and works offline. Download a PDF or share it with a family member."
-      },
-      {
-        "title": "Bangla and English",
-        "text": "Switch language any time. Clear messages in plain words when something goes wrong."
-      }
-    ]
-  },
   "seats": {
     "eyebrow": "Seat map",
     "title": "Pick seats like you pick a cinema seat",
@@ -216,33 +165,6 @@
       {
         "title": "Get your QR",
         "text": "Pay and your ticket is ready on your phone."
-      }
-    ]
-  },
-  "classes": {
-    "eyebrow": "Classes",
-    "title": "Know what you are choosing",
-    "body": "Plain descriptions next to each class, so first-time travellers are never unsure.",
-    "items": [
-      {
-        "key": "shovan",
-        "tag": "Budget",
-        "text": "Simple seats for short and everyday trips."
-      },
-      {
-        "key": "schair",
-        "tag": "Comfort",
-        "text": "Cushioned chairs with more legroom."
-      },
-      {
-        "key": "snigdha",
-        "tag": "Air-conditioned",
-        "text": "Cool, quiet coaches for long journeys."
-      },
-      {
-        "key": "ac",
-        "tag": "Overnight",
-        "text": "Private berths for night trains."
       }
     ]
   },

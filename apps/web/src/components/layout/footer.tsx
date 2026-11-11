@@ -19,9 +19,6 @@ export function Footer() {
             <a className={link} href="#routes">
               {nav("routes")}
             </a>
-            <a className={link} href="#features">
-              {nav("features")}
-            </a>
             <a className={link} href="#seats">
               {nav("seats")}
             </a>

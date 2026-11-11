@@ -5,7 +5,6 @@ export const siteConfig = {
 
 export const NAV_LINKS = [
   { href: "#routes", key: "routes" },
-  { href: "#features", key: "features" },
   { href: "#seats", key: "seats" },
   { href: "#how", key: "how" },
 ] as const;
