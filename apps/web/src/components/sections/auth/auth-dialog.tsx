@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { AuthTicket } from "@/components/sections/auth/auth-ticket";
+import { AuthCard } from "@/components/sections/auth/auth-card";
 import { LoginForm } from "@/components/sections/auth/login-form";
 import { RegisterForm } from "@/components/sections/auth/register-form";
 import { Dialog, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
@@ -18,7 +17,6 @@ export function AuthDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const t = useTranslations("auth");
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
 
@@ -44,9 +42,9 @@ export function AuthDialog({
               mode === "login" ? "login-phone" : "register-name",
             )
           }
-          className="fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,430px)] -translate-x-1/2 -translate-y-1/2 outline-none drop-shadow-[0_28px_40px_rgba(0,0,0,.4)] duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
+          className="fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,420px)] -translate-x-1/2 -translate-y-1/2 outline-none drop-shadow-[0_24px_36px_rgba(6,56,43,.35)] duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
         >
-          <AuthTicket tag={mode === "login" ? t("tagLogin") : t("tagRegister")}>
+          <AuthCard>
             {mode === "login" ? (
               <LoginForm
                 onSwitch={() => setMode("register")}
@@ -58,7 +56,7 @@ export function AuthDialog({
                 onSuccess={handleSuccess}
               />
             )}
-          </AuthTicket>
+          </AuthCard>
         </DialogPrimitive.Popup>
       </DialogPortal>
     </Dialog>

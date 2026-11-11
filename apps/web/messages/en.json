@@ -183,8 +183,6 @@
     "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold."
   },
   "auth": {
-    "tagLogin": "Passenger login",
-    "tagRegister": "New passenger",
     "loginTitle": "Log in",
     "registerTitle": "Create your account",
     "phone": "Phone number",
@@ -203,8 +201,6 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "close": "Close",
-    "stubTitle": "Passenger pass",
-    "stubSub": "Relgari Express",
     "errors": {
       "name": "Enter your full name.",
       "phone": "Enter a valid mobile number, like 01712345678.",
