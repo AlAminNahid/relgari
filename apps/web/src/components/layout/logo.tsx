@@ -1,22 +1,41 @@
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
+// The Relgari mark: a train coach, seen head-on, on the red disc of the flag. Keep it in step with src/app/icon.svg.
 export function TrainIcon({ className }: { className?: string }) {
+  const id = useId();
   return (
-    <svg viewBox="0 0 40 40" aria-hidden="true" className={className}>
-      <rect width="40" height="40" rx="10" fill="#00694b" />
-      <path
-        d="M13.5 30.5l-3.5 6M26.5 30.5l3.5 6M10.5 34h19"
-        stroke="#fff"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <rect x="11" y="6" width="18" height="24" rx="5.5" fill="#fff" />
-      <rect x="14" y="10" width="12" height="9" rx="2.2" fill="#00694b" />
-      <path d="M20 10v9" stroke="#fff" strokeWidth="1.4" />
-      <circle cx="15.8" cy="24.5" r="2" fill="#e2263b" />
-      <circle cx="24.2" cy="24.5" r="2" fill="#e2263b" />
+    <svg viewBox="0 0 64 64" aria-hidden="true" className={className}>
+      <defs>
+        <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0b8a61" />
+          <stop offset="1" stopColor="#00563d" />
+        </linearGradient>
+        <clipPath id={`${id}-tile`}>
+          <rect width="64" height="64" rx="15" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id}-tile)`}>
+        <rect width="64" height="64" fill={`url(#${id}-bg)`} />
+        <circle cx="32" cy="29" r="21" fill="#e2263b" />
+        <path
+          d="M17 45V22c0-3.3 2.7-6 6-6h18c3.3 0 6 2.7 6 6v23c0 2.2-1.8 4-4 4H21c-2.2 0-4-1.8-4-4Z"
+          fill="#fff"
+        />
+        <rect x="26" y="11.5" width="12" height="3" rx="1.5" fill="#fff" />
+        <rect x="21" y="20.5" width="9.5" height="11" rx="2" fill="#06382b" />
+        <rect x="33.5" y="20.5" width="9.5" height="11" rx="2" fill="#06382b" />
+        <rect x="17" y="35" width="30" height="2.6" fill="#00694b" />
+        <circle cx="23.5" cy="43" r="2.4" fill="#e2263b" />
+        <circle cx="40.5" cy="43" r="2.4" fill="#e2263b" />
+        <path
+          d="M23 49v4M41 49v4"
+          stroke="#fff"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+      </g>
     </svg>
   );
 }
