@@ -1,4 +1,5 @@
 import { ClockIcon } from "lucide-react";
+import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ClassKey } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -17,11 +18,19 @@ function useClock() {
   };
 }
 
+export interface Journey {
+  from: string;
+  to: string;
+  date: string;
+}
+
 export function TrainCard({
   train,
+  journey,
   preferred,
 }: {
   train: TrainResult;
+  journey: Journey;
   preferred?: ClassKey;
 }) {
   const t = useTranslations("results");
@@ -93,6 +102,13 @@ export function TrainCard({
               <ClassTile
                 key={item.seatClass}
                 item={item}
+                seatsHref={`/seats?${new URLSearchParams({
+                  train: String(train.number),
+                  from: journey.from,
+                  to: journey.to,
+                  date: journey.date,
+                  class: item.seatClass,
+                })}`}
                 preferred={item.seatClass === preferred}
               />
             ))}
@@ -110,9 +126,11 @@ export function TrainCard({
 
 function ClassTile({
   item,
+  seatsHref,
   preferred,
 }: {
   item: ClassAvailability;
+  seatsHref: string;
   preferred: boolean;
 }) {
   const t = useTranslations("results");
@@ -123,8 +141,9 @@ function ClassTile({
     ? format.dateTime(new Date(item.nextReleaseAt), {
         day: "numeric",
         month: "short",
-        hour: "numeric",
+        hour: "2-digit",
         minute: "2-digit",
+        hourCycle: "h23",
         timeZone: "Asia/Dhaka",
       })
     : "";
@@ -169,6 +188,21 @@ function ClassTile({
         <p className="mt-0.5 text-[12.5px] leading-snug text-muted-foreground">
           {detail}
         </p>
+      )}
+      {item.available > 0 ? (
+        <Link
+          href={seatsHref}
+          className="mt-2.5 flex h-9 items-center justify-center rounded-lg bg-primary text-[14px] font-semibold text-primary-foreground outline-none transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {t("selectSeats")}
+        </Link>
+      ) : (
+        <span
+          aria-disabled="true"
+          className="mt-2.5 flex h-9 items-center justify-center rounded-lg bg-muted text-[14px] font-semibold text-muted-foreground"
+        >
+          {t("selectSeats")}
+        </span>
       )}
     </li>
   );

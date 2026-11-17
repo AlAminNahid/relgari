@@ -55,8 +55,7 @@ export function coachesFor(train: TrainSeed): CoachSeed[] {
     { code: 'GHA', seatClass: 'schair' },
     { code: 'UMA', seatClass: 'schair' },
   ];
-  const overnight = train.stops.some((stop) => stop.arrive?.includes('+'));
-  if (overnight) coaches.push({ code: 'JA', seatClass: 'ac' });
+  coaches.push({ code: 'JA', seatClass: 'ac' });
   return coaches;
 }
 

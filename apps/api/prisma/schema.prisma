@@ -2,6 +2,7 @@
 // Feature 1 (login and registration): users and sessions.
 // Feature 2 (the railway itself): stations, trains, train stops, coaches and seats.
 // Feature 3 (ticket search): how many seats of a train each boarding station may sell.
+// Feature 4 (seat map): holds, the seats a person is holding while they decide.
 
 generator client {
   provider            = "prisma-client"
@@ -30,6 +31,7 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   sessions Session[]
+  holds    Hold[]
 
   @@map("users")
 }
@@ -69,8 +71,10 @@ model Station {
   nameEn String @map("name_en")
   nameBn String @map("name_bn")
 
-  stops  TrainStop[]
-  quotas StationQuota[]
+  stops     TrainStop[]
+  quotas    StationQuota[]
+  holdsFrom Hold[]         @relation("HoldFrom")
+  holdsTo   Hold[]         @relation("HoldTo")
 
   @@map("stations")
 }
@@ -86,6 +90,7 @@ model Train {
   stops   TrainStop[]
   coaches Coach[]
   quotas  StationQuota[]
+  holds   Hold[]
 
   @@map("trains")
 }
@@ -145,17 +150,61 @@ model Cabin {
   @@map("cabins")
 }
 
-// Seats are stored once per coach, not once per day. Whether a seat is free on a date
-// will come from the bookings for that date (feature 4).
+// Seats are stored once per coach, not once per day. Whether a seat is free on a date comes from
+// the holds (and later the bookings) for that run of the train.
 model Seat {
-  id      String @id @default(uuid(7))
-  coachId String @map("coach_id")
-  number  Int // counted row by row, starting at 1
+  id      String   @id @default(uuid(7))
+  coachId String   @map("coach_id")
+  kind    SeatKind @default(seat)
+  number  Int // counted row by row, starting at 1. Seats and berths are numbered separately.
+  // AC coaches only: the sofa this seat or berth belongs to, counted from the front of the coach.
+  // A sofa is either 3 seats (by day) or 2 berths (by night), never both at once.
+  sofa    Int?
 
-  coach Coach @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  holds Hold[]
 
-  @@unique([coachId, number])
+  @@unique([coachId, kind, number])
   @@map("seats")
+}
+
+// A seat, or a berth of an AC coach. Berths are sold as AC Cabin, AC coach seats as AC Seat.
+enum SeatKind {
+  seat
+  berth
+
+  @@map("seat_kind")
+}
+
+// A person holding one seat for a few minutes while they decide. Each seat has its own timer.
+// A hold belongs to a run of the train, named by the day the train sets off (runDate), not the
+// day the passenger boards: on an overnight train those can differ, and the seat is the same.
+// A person holds at most 4 seats at once, and all of them are on one journey.
+model Hold {
+  id            String    @id @default(uuid(7))
+  userId        String    @map("user_id")
+  trainId       String    @map("train_id")
+  runDate       DateTime  @map("run_date") @db.Date
+  seatId        String    @map("seat_id")
+  seatClass     SeatClass @map("seat_class") // what the passenger bought: schair, snigdha, acs or ac
+  fromStationId String    @map("from_station_id")
+  toStationId   String    @map("to_station_id")
+  fare          Int
+  createdAt     DateTime  @default(now()) @map("created_at")
+  expiresAt     DateTime  @map("expires_at")
+
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  train       Train   @relation(fields: [trainId], references: [id], onDelete: Cascade)
+  seat        Seat    @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  fromStation Station @relation("HoldFrom", fields: [fromStationId], references: [id])
+  toStation   Station @relation("HoldTo", fields: [toStationId], references: [id])
+
+  // One hold per seat per run. An expired row is removed before the seat is held again.
+  @@unique([seatId, runDate])
+  @@index([userId])
+  @@index([trainId, runDate])
+  @@index([expiresAt])
+  @@map("holds")
 }
 
 // A train's seats are shared out between the stations people board at: a busy station gets more.

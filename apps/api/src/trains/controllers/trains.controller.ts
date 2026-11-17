@@ -3,18 +3,25 @@ import {
   Controller,
   Get,
   Header,
+  Param,
+  ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import type { ApiError } from '../../shared/types/api.types.js';
+import { seatMapSchema, type SeatMapDto } from '../dto/seat-map.dto.js';
 import {
   trainSearchSchema,
   type TrainSearchDto,
 } from '../dto/train-search.dto.js';
+import { SeatMapService } from '../services/seat-map.service.js';
 import { TrainSearchService } from '../services/train-search.service.js';
 
 @Controller('trains')
 export class TrainsController {
-  constructor(private readonly trainSearch: TrainSearchService) {}
+  constructor(
+    private readonly trainSearch: TrainSearchService,
+    private readonly seatMaps: SeatMapService,
+  ) {}
 
   @Get('search')
   @Header('Cache-Control', 'no-store')
@@ -26,5 +33,20 @@ export class TrainsController {
       } satisfies ApiError);
     }
     return this.trainSearch.search(parsed.data, new Date());
+  }
+
+  @Get(':number/seats')
+  @Header('Cache-Control', 'no-store')
+  seats(
+    @Param('number', ParseIntPipe) number: number,
+    @Query() query: Record<string, unknown>,
+  ): Promise<SeatMapDto> {
+    const parsed = seatMapSchema.safeParse(query);
+    if (!parsed.success) {
+      throw new BadRequestException({
+        code: 'VALIDATION_FAILED',
+      } satisfies ApiError);
+    }
+    return this.seatMaps.get(number, parsed.data, new Date());
   }
 }

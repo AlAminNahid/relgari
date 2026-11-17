@@ -133,7 +133,11 @@ export default async function SearchPage({
           <ul className="mt-3 flex flex-col gap-4">
             {data.trains.map((train) => (
               <li key={train.number}>
-                <TrainCard train={train} preferred={cls} />
+                <TrainCard
+                  train={train}
+                  journey={{ from: data.from.code, to: data.to.code, date }}
+                  preferred={cls}
+                />
               </li>
             ))}
           </ul>

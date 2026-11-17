@@ -30,11 +30,13 @@ apps/web/
     │       ├── landing/   Landing page. Single-file sections sit here; a section with
     │       │              several files gets its own folder (hero/, departure-board/)
     │       ├── auth/      Login and registration popup
-    │       └── search/    Search results: the train card and the row of dates
+    │       ├── search/    Search results: the train card and the row of dates
+    │       └── seats/     Seat page: the coach map, seat buttons and the panel of held seats
     ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
     │                      auth.server.ts (who is signed in, used by the server),
     │                      stations.server.ts (the station list for the search form),
-    │                      trains.server.ts (the train search)
+    │                      trains.server.ts (the train search),
+    │                      seats.ts and seats.server.ts (the seat map and the holds)
     ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station),
     │                      dates.ts (journey dates as YYYY-MM-DD in Bangladesh time), i18n/, utils.ts
     ├── hooks/             Custom React hooks
@@ -73,11 +75,17 @@ apps/api/
     ├── trains/            Trains, their stops, coaches and seats, and the train search
     │   ├── controllers/   trains.controller.ts (the /trains/search route)
     │   ├── services/      train-search.service.ts (which trains run between two stations on a date),
+    │   │                  journey.service.ts (a train, two stations and a date, checked), seat-map.service.ts (the seats of one class, free or taken),
     │   │                  release.service.ts (how many seats are on sale yet, and when more open),
     │   │                  fare.service.ts (works out a fare from distance and class),
     │   │                  trains.service.ts (one train with its route and coaches)
     │   ├── dto/           train-search.dto.ts (the search input and result), train-detail.dto.ts
     │   └── trains.module.ts
+    ├── holds/             Seats a person is holding while they decide
+    │   ├── controllers/   holds.controller.ts (the /holds routes, login needed)
+    │   ├── services/      holds.service.ts (hold, list and release a seat, with the rules)
+    │   ├── dto/           hold.dto.ts
+    │   └── holds.module.ts
     ├── prisma/            Database connection
     ├── config/env.ts      Checks the .env settings when the server starts
     ├── shared/            Used by many features
@@ -134,7 +142,7 @@ cd ../web && npm install
 Where the data comes from:
 
 - **Real:** train numbers, stops, arrival and departure times and weekly off days, as published by the Bangladesh Railway e-ticket service in November 2026. They live in `apps/api/prisma/seed/stations.json` and `trains.json`. Timetables change, so treat them as a snapshot.
-- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate), coaches (every train gets 2 Snigdha and 3 S_Chair coaches, plus one AC coach of 12 cabins on overnight trains; Shovan is not sold on intercity trains) and each station's share of a train's seats (see below).
+- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate), coaches (every train gets 2 Snigdha and 3 S_Chair coaches, plus one AC coach of 7 cabins; Shovan is not sold on intercity trains) and each station's share of a train's seats (see below).
 - **Corrected:** eight trains (771, 772, 774, 784, 799, 800, 809, 810) had a time in the source that ran a little backwards. Those times were moved to the neighbouring stop's time, and 810 was put back in running order starting from Burimari.
 - **Written by hand:** the Bangla station and train names.
 
@@ -176,6 +184,10 @@ The website never calls the API directly. It calls `/api/...` on its own address
 | `POST /auth/logout` | End the session |
 | `GET /auth/me` | The signed-in user, including their own NID |
 | `GET /stations` | Every station (code, English name, Bangla name). Public |
+| `GET /trains/:number/seats?from=DAC&to=CGP&date=2026-11-20&class=schair` | The seats of one class on a train, each free or taken. Public |
+| `GET /holds/current` | The seats you are holding, with the seconds left on each. Login needed |
+| `POST /holds` | Hold one seat. Login needed |
+| `DELETE /holds/:id` | Release one of your held seats. Login needed |
 | `GET /trains/search?from=DAC&to=CGP&date=2026-11-20` | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public |
 
 ### How tickets go on sale
@@ -184,10 +196,19 @@ Relgari does not put every ticket on sale at once. Three rules decide what a sea
 
 - **Station shares.** A train's seats are shared between the stations people board at (the `station_quotas` table). The first station gets half; the rest is split so a major station gets three times what a small one gets. These shares are estimates set in `apps/api/prisma/seed/data.ts`.
 - **Batches.** Booking opens 10 days before the journey, and a new batch opens every 2 days at 5:00 PM Bangladesh time, so the last batch opens 2 days before. Each class has its own percentages: S_Chair opens 30, 25, 20, 15 and 10 percent; Snigdha, AC Seat and AC Cabin open 20 percent each time. A small share is spread in whole seats, with at least one seat kept for the last batch.
-- **AC Seat and AC Cabin.** An AC coach is made of cabins with 1 or 2 sofas (8 cabins with 2 and 4 with 1 in the seed, an estimate). By day a sofa seats 3 people and is sold as AC Seat (60 seats a coach). By night each sofa is a berth with an upper berth above it, sold as AC Cabin: a cabin with 2 sofas sleeps 4 and a cabin with 1 sofa sleeps 2 (40 berths a coach). Which one a passenger gets depends on when the train leaves the station they board at: 6:00 AM up to 6:00 PM is day (`apps/api/src/shared/constants/ac.constants.ts`). A station is only ever in one of the two, so the same sofas are never sold twice for the same boarding.
+- **AC Seat and AC Cabin.** An AC coach is made of cabins with 1 or 2 sofas (7 cabins with 2, 2, 1, 1, 1, 2 and 2 sofas, from the Bangladesh Railway map). By day a sofa seats 3 people and is sold as AC Seat (33 seats a coach). By night each sofa is a berth with an upper berth above it, sold as AC Cabin: a cabin with 2 sofas sleeps 4 and a cabin with 1 sofa sleeps 2 (22 berths a coach). Which one a passenger gets depends on when the train leaves the station they board at: 6:00 AM up to 6:00 PM is day (`apps/api/src/shared/constants/ac.constants.ts`). A station is only ever in one of the two, so the same sofas are never sold twice for the same boarding.
 - **Settings.** The window, the gap, the time and the percentages are in `apps/api/src/shared/constants/release.constants.ts`. The website's 10-day limit is `MAX_DAYS_AHEAD` in `apps/web/src/config/site.ts`.
 
-Nothing can be booked yet, so "seats available" is simply the seats released so far. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.
+Held seats are taken off the seats on sale; nothing can be bought yet, so there are no bookings to subtract. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.
+
+### Holding seats
+
+- **Limit.** A person holds at most 4 seats at once, all on one journey (same train, date and stations). Once they hold 4 they cannot hold another until they release one.
+- **Timer.** Each seat has its own 5 minutes, counted from the moment it was held. A seat that runs out is free again for everyone. Both numbers are in `apps/api/src/shared/constants/hold.constants.ts`.
+- **Run date.** A hold belongs to the day the train sets off, not the day the passenger boards, so a seat on an overnight train cannot be sold twice.
+- **No double holds.** Holds on one run of a train go through one at a time (a database lock), and the database also refuses two holds on the same seat.
+- **On sale.** A seat can only be held while the station still has seats released and not held. The seat map shows the whole coach; the count is the limit.
+- **AC sofas.** An AC sofa held as seats (by day) cannot also be held as berths (by night), and the other way round. Berths are stored as seats of kind `berth` next to the day seats.
 
 ## Build order
 
@@ -196,6 +217,6 @@ The project is built one feature at a time. Database tables are added only when 
 1. Landing page and login or registration (users and sessions tables) ✅
 2. Stations, trains, coaches and seats (stations, trains, train_stops, coaches and seats tables) ✅
 3. Train search (station_quotas table) ✅
-4. Seat map and seat holds
+4. Seat map and seat holds (holds table) ✅
 5. Fake payment and QR tickets
 6. My tickets, cancel and refund

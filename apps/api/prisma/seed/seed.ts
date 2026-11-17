@@ -81,17 +81,33 @@ async function main() {
         create: { trainId, code: coach.code, ...fields },
       });
       const total = layout.rows * layout.seatsPerRow;
+      const isAc = coach.seatClass === 'ac';
+      const seats = Array.from({ length: total }, (_, i) => ({
+        coachId,
+        kind: 'seat' as const,
+        number: i + 1,
+        sofa: isAc ? Math.ceil((i + 1) / AC.seatsPerSofaByDay) : null,
+      }));
+      const berths = isAc
+        ? Array.from(
+            { length: layout.rows * AC.berthsPerSofaByNight },
+            (_, i) => ({
+              coachId,
+              kind: 'berth' as const,
+              number: i + 1,
+              sofa: Math.ceil((i + 1) / AC.berthsPerSofaByNight),
+            }),
+          )
+        : [];
+      if (isAc) await prisma.seat.deleteMany({ where: { coachId } });
       await prisma.seat.createMany({
-        data: Array.from({ length: total }, (_, i) => ({
-          coachId,
-          number: i + 1,
-        })),
+        data: [...seats, ...berths],
         skipDuplicates: true,
       });
       await prisma.seat.deleteMany({
-        where: { coachId, number: { gt: total } },
+        where: { coachId, kind: 'seat', number: { gt: total } },
       });
-      seatCount += total;
+      seatCount += seats.length + berths.length;
 
       if (coach.seatClass === 'ac') {
         await prisma.cabin.deleteMany({ where: { coachId } });

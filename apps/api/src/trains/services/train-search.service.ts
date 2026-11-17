@@ -74,6 +74,20 @@ export class TrainSearchService {
       },
     });
 
+    const heldRows = await this.prisma.hold.findMany({
+      where: {
+        fromStationId: from.id,
+        trainId: { in: candidates.map((train) => train.id) },
+        expiresAt: { gt: now },
+      },
+      select: { trainId: true, runDate: true, seatClass: true },
+    });
+    const held = new Map<string, number>();
+    for (const row of heldRows) {
+      const key = `${row.trainId}:${row.runDate.toISOString().slice(0, 10)}:${row.seatClass}`;
+      held.set(key, (held.get(key) ?? 0) + 1);
+    }
+
     const trains: TrainResultDto[] = [];
     let routeExists = false;
     for (const train of candidates) {
@@ -99,7 +113,8 @@ export class TrainSearchService {
         const quota = train.quotas.find((q) => q.seatClass === seatClass);
         if (!quota) continue;
         const status = this.release.status(seatClass, quota.seats, date, now);
-        const sold = 0;
+        // Bookings will be subtracted here too once tickets can be bought.
+        const sold = held.get(`${train.id}:${startDate}:${seatClass}`) ?? 0;
         classes.push({
           seatClass,
           fare: this.fares.calculate(

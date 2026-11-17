@@ -3,7 +3,7 @@ export const AC = {
   berthsPerSofaByNight: 2,
   dayStartsAt: 6 * 60,
   dayEndsAt: 18 * 60,
-  cabins: [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1],
+  cabins: [2, 2, 1, 1, 1, 2, 2],
 } as const;
 
 export function isDayBoarding(minute: number): boolean {
