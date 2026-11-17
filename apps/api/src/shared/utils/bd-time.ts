@@ -23,6 +23,21 @@ export function weekday(date: string): number {
   return new Date(`${date}T00:00:00Z`).getUTCDay();
 }
 
+export function bdMonthRange(now: Date): {
+  start: Date;
+  end: Date;
+  resetsOn: string;
+} {
+  const today = bdToday(now);
+  const [year, month] = today.split('-').map(Number);
+  const nextYear = month === 12 ? year + 1 : year;
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const first = `${year}-${pad(month)}-01`;
+  const resetsOn = `${nextYear}-${pad(nextMonth)}-01`;
+  return { start: bdMoment(first, 0), end: bdMoment(resetsOn, 0), resetsOn };
+}
+
 export function bdMoment(date: string, minute: number): Date {
   return new Date(
     Date.parse(`${date}T00:00:00Z`) - BD_OFFSET_MS + minute * MINUTE_MS,

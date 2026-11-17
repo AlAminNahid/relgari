@@ -15,6 +15,7 @@ import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import { ApiRequestError } from "@/services/http";
+import { getLimit } from "@/services/bookings";
 import {
   getSeatMap,
   holdSeat,
@@ -22,7 +23,13 @@ import {
   releaseHold,
   type SeatQuery,
 } from "@/services/seats";
-import type { AuthUser, Hold, SeatInfo, SeatMap } from "@/types/api";
+import type {
+  AuthUser,
+  Hold,
+  PurchaseLimit,
+  SeatInfo,
+  SeatMap,
+} from "@/types/api";
 
 const POLL_MS = 10_000;
 
@@ -48,12 +55,12 @@ export function SeatPicker({
 
   const [map, setMap] = useState(initialMap);
   const [holds, setHolds] = useState<LiveHold[]>([]);
+  const [limit, setLimit] = useState<PurchaseLimit | null>(null);
   const [coachIndex, setCoachIndex] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [releasing, setReleasing] = useState<string | null>(null);
   const [error, setError] = useState<string>();
   const [authOpen, setAuthOpen] = useState(false);
-  // A seat tapped before logging in is held as soon as the person is signed in.
   const pendingSeat = useRef<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -69,19 +76,17 @@ export function SeatPicker({
 
   const refresh = useCallback(async () => {
     try {
-      const [nextMap, nextHolds] = await Promise.all([
+      const [nextMap, nextHolds, nextLimit] = await Promise.all([
         getSeatMap(query),
         signedIn ? listHolds() : Promise.resolve(null),
+        signedIn ? getLimit() : Promise.resolve(null),
       ]);
       setMap(nextMap);
       if (nextHolds) setHolds(live(nextHolds));
-    } catch {
-      // A failed refresh is ignored: the next one will try again.
-    }
+      if (nextLimit) setLimit(nextLimit);
+    } catch {}
   }, [query, signedIn]);
 
-  // The seat map changes as other people hold and release seats. The first refresh also picks up
-  // the seats the person already holds, on arrival and right after they log in.
   useEffect(() => {
     const first = setTimeout(() => void refresh(), 0);
     const id = setInterval(() => void refresh(), POLL_MS);
@@ -96,7 +101,6 @@ export function SeatPicker({
     };
   }, [refresh]);
 
-  // One clock for every countdown. A hold that runs out is dropped and the map is refreshed.
   useEffect(() => {
     const id = setInterval(() => {
       const current = Date.now();
@@ -121,6 +125,10 @@ export function SeatPicker({
     [t],
   );
 
+  const allowance = limit
+    ? Math.min(map.maxSeats, limit.remaining)
+    : map.maxSeats;
+
   const toggle = useCallback(
     async (seat: SeatInfo) => {
       setError(undefined);
@@ -135,8 +143,12 @@ export function SeatPicker({
         if (mine) {
           await releaseHold(mine.id);
         } else {
-          if (holds.length >= map.maxSeats) {
-            setError(t("errors.HOLD_LIMIT", { max: map.maxSeats }));
+          if (holds.length >= allowance) {
+            setError(
+              limit && limit.remaining < map.maxSeats
+                ? t("errors.MONTHLY_LIMIT", { max: limit.max })
+                : t("errors.HOLD_LIMIT", { max: map.maxSeats }),
+            );
             return;
           }
           await holdSeat(query, seat.id);
@@ -153,7 +165,17 @@ export function SeatPicker({
         setBusyId(null);
       }
     },
-    [signedIn, holds, map.maxSeats, query, refresh, errorText, t],
+    [
+      signedIn,
+      holds,
+      allowance,
+      limit,
+      map.maxSeats,
+      query,
+      refresh,
+      errorText,
+      t,
+    ],
   );
 
   useEffect(() => {
@@ -186,12 +208,17 @@ export function SeatPicker({
   const viewOf = (seat: SeatInfo): SeatView =>
     mineHere.has(seat.id) ? "mine" : seat.state;
 
-  const atLimit = signedIn && holds.length >= map.maxSeats;
+  const atLimit = signedIn && holds.length >= allowance;
   const noneOnSale = map.departed || map.availability.available === 0;
-  // Seats someone holds can be released even when no more can be picked.
   const locked = atLimit || noneOnSale;
   const coach = map.coaches[Math.min(coachIndex, map.coaches.length - 1)];
 
+  const monthDate = (date: string) =>
+    format.dateTime(dateStringToUtc(date), {
+      day: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    });
   const when = (iso: string) =>
     format.dateTime(new Date(iso), {
       day: "numeric",
@@ -211,7 +238,12 @@ export function SeatPicker({
 
   let notice = "";
   if (map.departed) notice = t("departed");
-  else if (atLimit) notice = t("limitNote", { max: map.maxSeats });
+  else if (atLimit && limit && limit.remaining < map.maxSeats) {
+    notice =
+      limit.remaining === 0
+        ? t("monthReached", { max: limit.max, date: monthDate(limit.resetsOn) })
+        : t("monthHolding", { count: limit.remaining, max: limit.max });
+  } else if (atLimit) notice = t("limitNote", { max: map.maxSeats });
   else if (map.availability.available === 0) {
     notice =
       map.availability.released === 0 && map.availability.nextReleaseAt
@@ -381,7 +413,7 @@ export function SeatPicker({
         <HoldPanel
           holds={holds}
           now={now}
-          max={map.maxSeats}
+          max={allowance}
           here={here}
           user={signedIn}
           releasing={releasing}
@@ -398,7 +430,7 @@ export function SeatPicker({
           <span className="text-[14.5px] font-semibold">
             {t("holding", {
               count: format.number(holds.length),
-              max: format.number(map.maxSeats),
+              max: format.number(allowance),
             })}
             {" · ৳"}
             {format.number(holds.reduce((sum, hold) => sum + hold.fare, 0))}
@@ -414,7 +446,6 @@ export function SeatPicker({
   );
 }
 
-// "16:30" from the API, shown with the digits of the current language.
 function clock(time: string, format: ReturnType<typeof useFormatter>) {
   const [hours, minutes] = time.split(":").map(Number);
   return format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {

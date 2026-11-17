@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { AuthUser } from "@/types/api";
@@ -102,6 +103,19 @@ export function Navbar({ user }: { user: AuthUser | null }) {
                     {t(l.key)}
                   </SheetClose>
                 ))}
+                {user && (
+                  <SheetClose
+                    nativeButton={false}
+                    render={
+                      <Link
+                        href="/tickets"
+                        className="rounded-lg px-3 py-2.5 text-base font-medium hover:bg-secondary"
+                      />
+                    }
+                  >
+                    {t("tickets")}
+                  </SheetClose>
+                )}
               </nav>
               <div className="mt-auto flex flex-col gap-2 p-4">
                 {user ? (

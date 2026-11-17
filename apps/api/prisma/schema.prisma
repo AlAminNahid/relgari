@@ -4,6 +4,7 @@
 // Feature 3 (ticket search): how many seats of a train each boarding station may sell.
 // Feature 4 (seat map): holds, the seats a person is holding while they decide.
 // Feature 5 (payment): bookings, the seats a person has paid for.
+// Feature 6 (my tickets): refunds, the record of seats that were cancelled.
 
 generator client {
   provider            = "prisma-client"
@@ -263,6 +264,7 @@ model Booking {
   fromStation Station       @relation("BookingFrom", fields: [fromStationId], references: [id])
   toStation   Station       @relation("BookingTo", fields: [toStationId], references: [id])
   seats       BookingSeat[]
+  refunds     Refund[]
 
   @@index([userId])
   @@map("bookings")
@@ -288,4 +290,41 @@ model BookingSeat {
   @@index([trainId, runDate])
   @@index([bookingId])
   @@map("booking_seats")
+}
+
+// A cancellation: one or more seats of a booking given up, and the pretend refund for them.
+// The cancelled seats are removed from the booking (so they can be sold again), and this record
+// keeps what they were, so the ticket can still show what happened.
+model Refund {
+  id            String        @id @default(uuid(7))
+  reference     String        @unique // e.g. RFK3M7X2PQ, shown to the passenger
+  bookingId     String        @map("booking_id")
+  paymentMethod PaymentMethod @map("payment_method") // the refund goes back the way it came
+  feePercent    Int           @map("fee_percent")
+  fareTotal     Int           @map("fare_total") // the fares of the seats cancelled
+  fee           Int // kept as the cancellation fee
+  amount        Int // paid back: fareTotal minus fee. The service charge is not refunded.
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  booking Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seats   RefundSeat[]
+
+  @@index([bookingId])
+  @@map("refunds")
+}
+
+model RefundSeat {
+  id        String    @id @default(uuid(7))
+  refundId  String    @map("refund_id")
+  label     String // as printed on the ticket, e.g. GA-12
+  coach     String
+  seatClass SeatClass @map("seat_class")
+  fare      Int
+  fee       Int
+  refund    Int
+
+  refundRecord Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+
+  @@index([refundId])
+  @@map("refund_seats")
 }

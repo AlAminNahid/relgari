@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDownIcon, LogOutIcon } from "lucide-react";
+import { ChevronDownIcon, LogOutIcon, TicketIcon } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { AuthUser } from "@/types/api";
 import {
@@ -65,6 +66,13 @@ export function AccountMenu({
           </div>
         </div>
         <div className="border-t p-1.5">
+          <Link
+            href="/tickets"
+            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14.5px] font-medium text-foreground outline-none transition-colors hover:bg-secondary focus-visible:bg-secondary"
+          >
+            <TicketIcon className="size-4 text-muted-foreground" />
+            {t("tickets")}
+          </Link>
           <button
             type="button"
             onClick={onLogout}

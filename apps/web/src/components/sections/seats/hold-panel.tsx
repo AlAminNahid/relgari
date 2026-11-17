@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Hold } from "@/types/api";
 
 export interface LiveHold extends Hold {
-  deadline: number; // when the hold ends, on this device's clock
+  deadline: number;
 }
 
 export function HoldPanel({
@@ -53,12 +53,14 @@ export function HoldPanel({
         <h2 className="text-[18px] font-bold text-brand-deep">
           {t("yourSeats")}
         </h2>
-        <span className="font-mono text-[12.5px] text-muted-foreground">
-          {t("holding", {
-            count: format.number(holds.length),
-            max: format.number(max),
-          })}
-        </span>
+        {max > 0 && (
+          <span className="font-mono text-[12.5px] text-muted-foreground">
+            {t("holding", {
+              count: format.number(holds.length),
+              max: format.number(max),
+            })}
+          </span>
+        )}
       </div>
 
       {!user ? (
@@ -78,7 +80,7 @@ export function HoldPanel({
         </div>
       ) : holds.length === 0 ? (
         <p className="mt-4 rounded-xl bg-background px-4 py-5 text-[14.5px] text-muted-foreground">
-          {t("empty", { minutes: 5 })}
+          {max === 0 ? t("emptyMonth") : t("empty", { minutes: 5 })}
         </p>
       ) : (
         <ul className="mt-4 flex flex-col gap-2">

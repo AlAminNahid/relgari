@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { CancelDialog } from "@/components/sections/ticket/cancel-dialog";
+import { StatusBadge } from "@/components/sections/ticket/status-badge";
 import { METHOD_STYLE } from "@/config/payment";
 import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import type { Booking } from "@/types/api";
 
-// The e-ticket of a paid booking. The QR code is made on the server and passed in as an SVG string.
 export function TicketView({
   booking,
   qrSvg,
@@ -48,9 +49,7 @@ export function TicketView({
               {locale === "bn" ? booking.train.nameBn : booking.train.nameEn}
             </p>
           </div>
-          <span className="rounded-full bg-white/15 px-3.5 py-1 font-mono text-[12px] font-semibold tracking-[.1em]">
-            {t("confirmed")}
-          </span>
+          <StatusBadge status={booking.status} className="bg-white" />
         </header>
 
         <div className="px-6 pb-6 pt-5">
@@ -94,87 +93,168 @@ export function TicketView({
             </Info>
           </dl>
 
-          <h2 className="mb-2 mt-6 font-mono text-[11.5px] font-medium uppercase tracking-[.08em] text-muted-foreground">
-            {t("seats")}
-          </h2>
-          <table className="w-full text-left text-[14.5px]">
-            <thead className="text-[12.5px] text-muted-foreground">
-              <tr className="border-b">
-                <th className="py-1.5 font-medium">{t("seat")}</th>
-                <th className="py-1.5 font-medium">{t("coach")}</th>
-                <th className="py-1.5 font-medium">{t("class")}</th>
-                <th className="py-1.5 text-right font-medium">{t("fare")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {booking.seats.map((seat) => (
-                <tr key={seat.id} className="border-b last:border-0">
-                  <td className="py-2 font-mono font-bold text-brand-deep">
-                    {seat.label}
-                  </td>
-                  <td className="py-2">{seat.coach}</td>
-                  <td className="py-2">{tc(seat.seatClass)}</td>
-                  <td className="py-2 text-right tabular-nums">
-                    {taka(seat.fare)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {booking.seats.length > 0 && (
+            <>
+              <h2 className="mb-2 mt-6 font-mono text-[11.5px] font-medium uppercase tracking-[.08em] text-muted-foreground">
+                {t("seats")}
+              </h2>
+              <table className="w-full text-left text-[14.5px]">
+                <thead className="text-[12.5px] text-muted-foreground">
+                  <tr className="border-b">
+                    <th className="py-1.5 font-medium">{t("seat")}</th>
+                    <th className="py-1.5 font-medium">{t("coach")}</th>
+                    <th className="py-1.5 font-medium">{t("class")}</th>
+                    <th className="py-1.5 text-right font-medium">
+                      {t("fare")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {booking.seats.map((seat) => (
+                    <tr key={seat.id} className="border-b last:border-0">
+                      <td className="py-2 font-mono font-bold text-brand-deep">
+                        {seat.label}
+                      </td>
+                      <td className="py-2">{seat.coach}</td>
+                      <td className="py-2">{tc(seat.seatClass)}</td>
+                      <td className="py-2 text-right tabular-nums">
+                        {taka(seat.fare)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </div>
 
-        <div className="relative border-t-2 border-dashed px-6 py-5">
-          <span
-            aria-hidden="true"
-            className="absolute -left-3 -top-3 size-6 rounded-full bg-background"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute -right-3 -top-3 size-6 rounded-full bg-background"
-          />
-          <div className="flex flex-col items-center gap-5 sm:flex-row">
-            <div
-              role="img"
-              aria-label={`${t("gate")}: ${booking.pnr}`}
-              className="size-40 shrink-0 rounded-xl border bg-white p-2 [&_svg]:size-full"
-              dangerouslySetInnerHTML={{ __html: qrSvg }}
+        {booking.status !== "cancelled" && (
+          <div className="relative border-t-2 border-dashed px-6 py-5">
+            <span
+              aria-hidden="true"
+              className="absolute -left-3 -top-3 size-6 rounded-full bg-background"
             />
-            <div className="w-full text-[14.5px]">
-              <p className="text-[17px] font-bold text-brand-deep">
-                {t("gate")}
-              </p>
-              <p className="mt-0.5 text-muted-foreground">{t("gateNote")}</p>
-              <dl className="mt-3 space-y-1">
-                <Line label={t("fares")} value={taka(booking.subtotal)} />
-                <Line
-                  label={t("serviceCharge")}
-                  value={taka(booking.serviceCharge)}
-                />
-                <Line label={t("total")} value={taka(booking.total)} strong />
-              </dl>
-              <p className="mt-3 text-[13px] text-muted-foreground">
-                <span
-                  className="mr-1.5 inline-block rounded px-1.5 py-px text-[11.5px] font-bold"
-                  style={{ background: method.bg, color: method.text }}
-                >
-                  {method.name}
-                </span>
-                {t("transaction")}{" "}
-                <span className="font-mono">{booking.transactionId}</span>
-                {" · "}
-                {format.dateTime(new Date(booking.paidAt), {
-                  day: "numeric",
-                  month: "short",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hourCycle: "h23",
-                  timeZone: "Asia/Dhaka",
-                })}
-              </p>
+            <span
+              aria-hidden="true"
+              className="absolute -right-3 -top-3 size-6 rounded-full bg-background"
+            />
+            <div className="flex flex-col items-center gap-5 sm:flex-row">
+              <div
+                role="img"
+                aria-label={`${t("gate")}: ${booking.pnr}`}
+                className="size-40 shrink-0 rounded-xl border bg-white p-2 [&_svg]:size-full"
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
+              <div className="w-full text-[14.5px]">
+                <p className="text-[17px] font-bold text-brand-deep">
+                  {t("gate")}
+                </p>
+                <p className="mt-0.5 text-muted-foreground">{t("gateNote")}</p>
+                <dl className="mt-3 space-y-1">
+                  <Line label={t("fares")} value={taka(booking.subtotal)} />
+                  <Line
+                    label={t("serviceCharge")}
+                    value={taka(booking.serviceCharge)}
+                  />
+                  <Line label={t("total")} value={taka(booking.total)} strong />
+                </dl>
+                <p className="mt-3 text-[13px] text-muted-foreground">
+                  <span
+                    className="mr-1.5 inline-block rounded px-1.5 py-px text-[11.5px] font-bold"
+                    style={{ background: method.bg, color: method.text }}
+                  >
+                    {method.name}
+                  </span>
+                  {t("transaction")}{" "}
+                  <span className="font-mono">{booking.transactionId}</span>
+                  {" · "}
+                  {format.dateTime(new Date(booking.paidAt), {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hourCycle: "h23",
+                    timeZone: "Asia/Dhaka",
+                  })}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </article>
+
+      {booking.canCancel && (
+        <div className="mt-5 flex flex-col items-center gap-2 text-center">
+          <CancelDialog booking={booking} />
+          <p className="text-[13px] text-muted-foreground">
+            {t("cancelNote", {
+              percent: format.number(booking.cancelFeePercent ?? 0),
+            })}
+          </p>
+        </div>
+      )}
+
+      {booking.refunds.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-2 font-mono text-[11.5px] font-medium uppercase tracking-[.08em] text-muted-foreground">
+            {t("refunds")}
+          </h2>
+          <div className="space-y-3">
+            {booking.refunds.map((refund) => (
+              <article
+                key={refund.reference}
+                className="rounded-2xl border bg-card p-4 text-[14.5px]"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <b className="font-mono tracking-[.04em]">
+                    {refund.reference}
+                  </b>
+                  <span className="text-[13px] text-muted-foreground">
+                    {format.dateTime(new Date(refund.createdAt), {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hourCycle: "h23",
+                      timeZone: "Asia/Dhaka",
+                    })}
+                  </span>
+                </div>
+                <ul className="mt-2 divide-y">
+                  {refund.seats.map((seat) => (
+                    <li
+                      key={seat.label}
+                      className="flex items-center gap-3 py-1.5"
+                    >
+                      <span className="font-mono font-bold text-muted-foreground line-through">
+                        {seat.label}
+                      </span>
+                      <span className="flex-1 text-muted-foreground">
+                        {tc(seat.seatClass)}
+                      </span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {taka(seat.fare)} − {taka(seat.fee)}
+                      </span>
+                      <b className="tabular-nums">{taka(seat.refund)}</b>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 flex items-baseline justify-between border-t pt-2">
+                  <span className="text-muted-foreground">
+                    {t("refundedTo", {
+                      method: METHOD_STYLE[refund.paymentMethod].name,
+                      percent: format.number(refund.feePercent),
+                    })}
+                  </span>
+                  <b className="text-[18px] tabular-nums text-brand-deep">
+                    {taka(refund.amount)}
+                  </b>
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <p className="mt-6 text-center">
         <Link href="/" className="font-semibold text-primary hover:underline">

@@ -28,11 +28,63 @@ export const payBookingSchema = z.discriminatedUnion('method', [
 
 export type PayBookingDto = z.infer<typeof payBookingSchema>;
 
+export interface LimitDto {
+  used: number;
+  max: number;
+  remaining: number;
+  resetsOn: string;
+}
+
 export interface CheckoutDto {
   holds: HoldDto[];
   subtotal: number;
   serviceCharge: number;
   total: number;
+}
+
+export const cancelSchema = z.object({
+  seatIds: z.array(z.string().min(1).max(64)).min(1).max(8),
+});
+export type CancelDto = z.infer<typeof cancelSchema>;
+
+export const quoteSchema = z.object({
+  seats: z
+    .string()
+    .min(1)
+    .max(600)
+    .transform((value) => value.split(',').filter(Boolean)),
+});
+
+export type BookingStatus =
+  'confirmed' | 'partly_cancelled' | 'cancelled' | 'departed';
+
+export interface RefundSeatDto {
+  label: string;
+  coach: string;
+  seatClass: Exclude<SeatClass, 'shovan'>;
+  fare: number;
+  fee: number;
+  refund: number;
+}
+
+export interface RefundDto {
+  reference: string;
+  paymentMethod: PaymentMethod;
+  feePercent: number;
+  fareTotal: number;
+  fee: number;
+  amount: number;
+  createdAt: string;
+  seats: RefundSeatDto[];
+}
+
+export interface QuoteDto {
+  feePercent: number;
+  fareTotal: number;
+  fee: number;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  seats: (RefundSeatDto & { id: string })[];
 }
 
 export interface BookingDto {
@@ -59,4 +111,9 @@ export interface BookingDto {
   paymentMethod: PaymentMethod;
   transactionId: string;
   paidAt: string;
+  status: BookingStatus;
+  departureAt: string;
+  canCancel: boolean;
+  cancelFeePercent: number | null;
+  refunds: RefundDto[];
 }

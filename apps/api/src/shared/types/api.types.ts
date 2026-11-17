@@ -25,6 +25,9 @@ export type ApiErrorCode =
   | 'INSUFFICIENT_BALANCE'
   | 'INVALID_CARD'
   | 'CARD_DECLINED'
+  | 'CANCEL_CLOSED'
+  | 'JOURNEY_LIMIT'
+  | 'MONTHLY_LIMIT'
   | 'TOO_MANY_REQUESTS'
   | 'INTERNAL';
 

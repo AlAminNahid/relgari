@@ -17,7 +17,8 @@
     "menu": "Menu",
     "language": "Language",
     "logout": "Log out",
-    "account": "Account: {name}"
+    "account": "Account: {name}",
+    "tickets": "My tickets"
   },
   "hero": {
     "badge": "New",
@@ -126,8 +127,13 @@
       "HOLD_NOT_FOUND": "That seat was already released.",
       "UNAUTHENTICATED": "Please log in again.",
       "NETWORK": "Could not reach the server. Check your connection.",
-      "INTERNAL": "Something went wrong. Try again."
-    }
+      "INTERNAL": "Something went wrong. Try again.",
+      "JOURNEY_LIMIT": "You already have seats on this journey. Four is the most, so release or cancel one first.",
+      "MONTHLY_LIMIT": "You can buy at most {max, number} tickets a month, and you have reached that."
+    },
+    "monthReached": "You have bought {max, number} tickets this month, the most allowed. You can buy again from {date}.",
+    "monthHolding": "This month you can buy only {count, number} more of your {max, number} tickets. Release a seat to choose another.",
+    "emptyMonth": "You cannot hold more seats this month."
   },
   "checkout": {
     "title": "Checkout",
@@ -195,7 +201,8 @@
       "SEAT_TAKEN": "One of the seats was just taken.",
       "UNAUTHENTICATED": "Please log in again.",
       "NETWORK": "Could not reach the server. Check your connection.",
-      "INTERNAL": "Something went wrong. Try again."
+      "INTERNAL": "Something went wrong. Try again.",
+      "MONTHLY_LIMIT": "You have reached the monthly limit of tickets."
     },
     "title": "{method} payment",
     "secure": "Secure payment",
@@ -239,7 +246,16 @@
     "gate": "Show this at the gate",
     "gateNote": "Demo ticket for a concept project. Not valid for travel.",
     "home": "Back to home",
-    "trainNo": "Train no. {number}"
+    "trainNo": "Train no. {number}",
+    "status": {
+      "confirmed": "Confirmed",
+      "partly_cancelled": "Partly cancelled",
+      "cancelled": "Cancelled",
+      "departed": "Departed"
+    },
+    "cancelNote": "Cancelling now keeps {percent, number}% of the fare. The service charge is not refunded.",
+    "refunds": "Refunds",
+    "refundedTo": "Refunded to {method} after a {percent, number}% fee"
   },
   "classNames": {
     "shovan": "Shovan",
@@ -416,6 +432,60 @@
       "NETWORK": "Could not reach the server. Check your connection and try again.",
       "UNAUTHENTICATED": "Please log in again.",
       "VALIDATION_FAILED": "Please check the highlighted fields."
+    }
+  },
+  "ticketsPage": {
+    "title": "My tickets",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "upcoming": "You have no upcoming trips.",
+      "past": "No past trips yet.",
+      "cancelled": "No cancelled tickets."
+    },
+    "search": "Search trains",
+    "trainNo": "Train no. {number}",
+    "departs": "Departs {time}",
+    "seats": "Seats",
+    "paid": "Paid",
+    "refunded": "Refunded to {method}",
+    "limit": "This month: {used, number} of {max, number} tickets bought. The count starts again on {date}."
+  },
+  "cancel": {
+    "button": "Cancel seats",
+    "title": "Cancel seats",
+    "close": "Close",
+    "intro": "Choose the seats you want to give back. Seats you keep stay on your ticket.",
+    "seats": "Your seats",
+    "pickSome": "Pick at least one seat to see your refund.",
+    "calculating": "Working out your refund…",
+    "fares": "Fares of these seats",
+    "fee": "Cancellation fee ({percent, number}%)",
+    "refundTo": "Refund to {method}",
+    "serviceNote": "The service charge is not refunded.",
+    "policy": "Cancellation fees",
+    "policyOver": "More than {hours, number} hours before departure",
+    "policyBetween": "{from, number} to {to, number} hours before",
+    "policyUnder": "Less than {hours, number} hours before",
+    "notAllowed": "Not allowed",
+    "confirm": "{count, plural, one {Cancel # seat} other {Cancel # seats}}",
+    "working": "Cancelling…",
+    "keep": "Keep my seats",
+    "doneTitle": "Seats cancelled",
+    "doneBody": "{amount} is being refunded to your {method}.",
+    "reference": "Refund reference",
+    "done": "Done",
+    "errors": {
+      "CANCEL_CLOSED": "It is too late to cancel: the train leaves in less than 6 hours.",
+      "SEAT_NOT_FOUND": "One of those seats is no longer on this ticket.",
+      "BOOKING_NOT_FOUND": "This ticket could not be found.",
+      "UNAUTHENTICATED": "Please log in again.",
+      "NETWORK": "Could not reach the server. Check your connection.",
+      "VALIDATION_FAILED": "Choose at least one seat.",
+      "INTERNAL": "Something went wrong. Try again."
     }
   }
 }

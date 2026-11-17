@@ -27,6 +27,9 @@ export type ApiErrorCode =
   | "INSUFFICIENT_BALANCE"
   | "INVALID_CARD"
   | "CARD_DECLINED"
+  | "CANCEL_CLOSED"
+  | "JOURNEY_LIMIT"
+  | "MONTHLY_LIMIT"
   | "TOO_MANY_REQUESTS"
   | "INTERNAL";
 
@@ -165,4 +168,50 @@ export interface Booking {
   paymentMethod: PaymentMethod;
   transactionId: string;
   paidAt: string;
+  status: BookingStatus;
+  departureAt: string;
+  canCancel: boolean;
+  cancelFeePercent: number | null;
+  refunds: Refund[];
+}
+
+export type BookingStatus =
+  | "confirmed"
+  | "partly_cancelled"
+  | "cancelled"
+  | "departed";
+
+export interface RefundSeat {
+  label: string;
+  coach: string;
+  seatClass: ClassKey;
+  fare: number;
+  fee: number;
+  refund: number;
+}
+
+export interface Refund {
+  reference: string;
+  paymentMethod: PaymentMethod;
+  feePercent: number;
+  fareTotal: number;
+  fee: number;
+  amount: number;
+  createdAt: string;
+  seats: RefundSeat[];
+}
+
+export interface CancelQuote {
+  feePercent: number;
+  fareTotal: number;
+  fee: number;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  seats: (RefundSeat & { id: string })[];
+}
+export interface PurchaseLimit {
+  used: number;
+  max: number;
+  remaining: number;
+  resetsOn: string;
 }

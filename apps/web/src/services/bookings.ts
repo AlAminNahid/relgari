@@ -1,5 +1,11 @@
 import type { PaymentMethod } from "@/config/payment";
-import type { Booking, Checkout } from "@/types/api";
+import type {
+  Booking,
+  CancelQuote,
+  Checkout,
+  PurchaseLimit,
+  Refund,
+} from "@/types/api";
 import { api } from "@/services/http";
 
 export type Payment =
@@ -23,4 +29,20 @@ export function startCheckout() {
 
 export function pay(payment: Payment) {
   return api<Booking>("/bookings", { method: "POST", body: payment });
+}
+
+export function cancelQuote(bookingId: string, seatIds: string[]) {
+  const query = new URLSearchParams({ seats: seatIds.join(",") });
+  return api<CancelQuote>(`/bookings/${bookingId}/cancel-quote?${query}`);
+}
+
+export function cancelSeats(bookingId: string, seatIds: string[]) {
+  return api<Refund>(`/bookings/${bookingId}/cancel`, {
+    method: "POST",
+    body: { seatIds },
+  });
+}
+
+export function getLimit() {
+  return api<PurchaseLimit>("/bookings/limits");
 }

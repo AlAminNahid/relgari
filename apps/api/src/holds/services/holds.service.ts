@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { HOLD } from '../../shared/constants/hold.constants.js';
+import { PURCHASE_LIMIT } from '../../shared/constants/limits.constants.js';
 import type { ApiError, ApiErrorCode } from '../../shared/types/api.types.js';
-import { addDays } from '../../shared/utils/bd-time.js';
+import { addDays, bdMonthRange } from '../../shared/utils/bd-time.js';
 import { FareService } from '../../trains/services/fare.service.js';
 import {
   dbDate,
@@ -132,6 +133,26 @@ export class HoldsService {
         );
         if (!sameJourney) {
           throw new ConflictException(fail('DIFFERENT_JOURNEY'));
+        }
+
+        const { start, end } = bdMonthRange(now);
+        const boughtThisMonth = await tx.bookingSeat.count({
+          where: { booking: { userId, createdAt: { gte: start, lt: end } } },
+        });
+        if (boughtThisMonth + mine.length >= PURCHASE_LIMIT.seatsPerMonth) {
+          throw new ConflictException(fail('MONTHLY_LIMIT'));
+        }
+
+        const paid = await tx.bookingSeat.count({
+          where: {
+            trainId: train.id,
+            runDate: run,
+            fromStationId: from.id,
+            booking: { userId, toStationId: to.id },
+          },
+        });
+        if (paid + mine.length >= HOLD.maxSeats) {
+          throw new ConflictException(fail('JOURNEY_LIMIT'));
         }
 
         const taken = await takenOnRun(tx, train.id, run, now);
