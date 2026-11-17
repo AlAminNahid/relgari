@@ -1,125 +1,102 @@
 # Relgari (রেলগাড়ি)
 
-A friendlier way to book train tickets, inspired by Bangladesh Railway. This is a personal concept project: no real tickets are sold and no real payments are taken.
+**A calmer way to book a train ticket in Bangladesh.** Relgari is a working prototype of a train-ticket website modelled on Bangladesh Railway: search a journey, pick your exact seats on a coach map, pay, and get an e-ticket with a QR code. When a train is busy, it puts you in an orderly line instead of throwing you out.
 
-## Folder layout
+> **Please note:** Relgari is a personal, working prototype, not a finished product and not affiliated with Bangladesh Railway. The trains and timetable are real, but no real tickets are sold and no money moves: payment is a clearly labelled demo.
+
+**Live demo:** https://relgari.vercel.app
+
+## Why Relgari exists
+
+Anyone who has bought a Bangladesh Railway ticket around Eid knows the routine. Thousands of people want the same train on the same morning. The page slows down, you are suddenly sent back to the landing page, and you have to search all over again, sometimes many times, while the seats you wanted disappear. There is no line, no place to hold, and no sign of what is happening.
+
+Relgari asks a simple question: _what would that experience look like if the system were built to handle the crowd gracefully?_ It started as a fun project to explore that, and grew into a complete booking journey. The look takes its colours from the green and red of the national flag, and its name is simply "railway carriage" in Bangla.
+
+### What it tries to do better
+
+| The usual frustration                          | What Relgari does                                                                           |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Thrown back to the start when the site is busy | A **waiting room** per train and date: you see your place, and refreshing the page keeps it |
+| Not knowing why something failed               | Clear messages in your language, such as "too many requests, try again in 20 seconds"       |
+| A seat map that is out of date when you click  | The map checks for changes **every 3 seconds** and updates itself                           |
+| Seats vanishing while you are paying           | Each seat is **held for 5 minutes**; opening checkout keeps them at least 10 more           |
+| Two people buying the same seat                | Seats are held one at a time, and the database itself refuses a double booking              |
+| A language barrier                             | The whole site in **English and Bangla**                                                    |
+| All tickets sold out in the first hours        | Tickets go on sale in **batches**, so people who book later still have a fair chance        |
+| Cancelling the whole ticket to drop one seat   | **Cancel only the seats you do not need** and keep the rest, with the refund shown first    |
+
+## What you can do
+
+- **Search** 122 intercity trains across 225 stations, with real train numbers, stops, times and weekly off days.
+- **Pick seats** on a coach map for S_Chair, Snigdha, AC Seat and AC Cabin, including AC sofas that become berths at night.
+- **Buy in fair batches.** Tickets are not all released at once. Booking opens 10 days before the journey and new batches open every 2 days at 5 PM Bangladesh time, so the last batch opens 2 days before. Each station also gets its own share of a train's seats, so one big station cannot take everything.
+- **Hold seats while you decide.** Each seat is held for 5 minutes, up to 6 seats on one journey, with a limit of 6 tickets per person per month.
+- **Pay with a pretend gateway** styled as bKash, Nagad, Rocket or card.
+- **Get an e-ticket** with a QR code that anyone can check on the "Check a ticket" page, showing only what a gate check needs.
+- **Cancel only what you do not need.** Bought four seats but need one? Cancel the other three and keep your ticket. The fee depends on how close the train is, and the refund is shown before you confirm.
+- **Use it in your language.** Everything is in English and Bangla, with times in 12-hour Bangladesh style.
+
+## Security
+
+Relgari is a prototype, but it treats people's details with care.
+
+- **Passwords** are hashed with argon2id and never stored or logged.
+- **NID numbers** are never stored as plain text: a keyed hash stops a second account with the same NID, and an encrypted copy (AES-256-GCM) is shown back only to its owner.
+- **Sessions** use an `HttpOnly` cookie with a random token. The database stores only a hash of it, so a copy of the database cannot be used to sign in. Sessions end on logout or after 30 days.
+- **Brute-force protection:** at most 5 login or registration tries per phone number and address every 15 minutes, and 100 requests a minute per visitor. A wrong phone number and a wrong password give the same answer, so nobody can find out which numbers have accounts.
+- **Honest visitor addresses:** the website passes each visitor's address to the API in a header signed with a shared secret, so one person cannot use up another's limit and nobody can fake an address.
+- **Checked input:** every request is validated with the same Zod rules the website uses. Errors come back as codes, not internal details.
+- **QR tickets** show only what a gate check needs (validity, train, seats, the passenger's initials), never a phone number, NID or payment detail.
+- **Secrets** live only in environment settings and ignored `.env` files, never in the code.
+
+## Handling a crowd
+
+Relgari does not use a literal load balancer. This is a single-server prototype, so it focuses on the real problem: many people wanting the same train at once. These layers work together:
+
+1. **Waiting room.** Each train and date admits 150 people at a time. Everyone else sees their place and a rough wait, and is let in automatically when a place frees up. Refreshing keeps the place, and people holding seats ahead of payment go first. Searching and the landing page are never queued.
+2. **Cheap seat updates.** The seat map checks a tiny "version" code every 3 seconds and reloads the full map only when something changed, so hundreds of people watching cost very little.
+3. **No double selling.** Holds on one run of a train go through one at a time (a database lock), and the database also refuses two holds on the same seat.
+4. **Fair limits.** Per-visitor rate limits, the 6-seat hold limit, the monthly ticket limit and the 5-minute hold timer keep one person from taking too much.
+5. **Clear messages.** When a limit is hit, the person is told how many seconds to wait instead of being sent away.
+
+A simulation script (`apps/api/scripts/simulate-crowd.mjs`) sends 300 visitors at one train: 150 get in, 150 queue in order, and freed places go to the front of the line. For real growth, the waiting room would move from memory into a shared store such as Redis so several servers can share it.
+
+## A working prototype: what is real and what is pretend
+
+| Real                                                               | Pretend or simplified                                                         |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Train numbers, stops, times, weekly off days (a Nov 2026 snapshot) | Payments: no bank or wallet is contacted                                      |
+| Accounts, passwords (argon2id) and encrypted NID storage           | No SMS or phone verification: any valid-looking number can sign up            |
+| Seat holds, bookings, cancellations and refunds in a database      | Distances, fares, coaches and seat shares are estimates                       |
+| Rate limiting and brute-force protection                           | The waiting room lives in memory: it resets on a restart and suits one server |
+
+## How it fits together
 
 ```
-relgari/
-├── apps/
-│   ├── web/              Next.js frontend (what users see)
-│   └── api/              NestJS backend (the server)
-├── docker-compose.yml    Local PostgreSQL (shows up as "relgari" in OrbStack)
-└── README.md
+Browser ──► Next.js website (Vercel) ──► NestJS API (Render) ──► PostgreSQL (Neon)
+            English and Bangla pages       rules, holds, queue      stations, trains,
+            forwards /api/* calls          bookings, sessions       seats, bookings
 ```
-
-### Inside `apps/web`
-
-```
-apps/web/
-├── messages/          English and Bangla text (en.json, bn.json)
-└── src/
-    ├── app/
-    │   ├── (marketing)/   Public pages: layout.tsx (header and footer) and page.tsx (landing page)
-    │   ├── layout.tsx     Root layout: fonts, language
-    │   └── globals.css    Theme colors
-    ├── components/
-    │   ├── ui/            shadcn/ui components (Button, Input, Select...)
-    │   ├── layout/        Navbar, account menu, Footer, Logo, language switch
-    │   └── sections/      Page sections, one folder per feature
-    │       ├── landing/   Landing page. Single-file sections sit here; a section with
-    │       │              several files gets its own folder (hero/, departure-board/)
-    │       ├── auth/      Login and registration popup
-    │       ├── search/    Search results: the train card and the row of dates
-    │       ├── seats/     Seat page: the coach map, seat buttons and the panel of held seats
-    │       ├── checkout/  Checkout page and the pretend payment popup (bKash, Nagad, Rocket, card)
-    │       ├── ticket/    My tickets list, the e-ticket with its QR code, and the cancel popup
-    │       └── verify/    The page a QR code opens, and the check-a-ticket page (PNR box and camera scan)
-    ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
-    │                      auth.server.ts (who is signed in, used by the server),
-    │                      stations.server.ts (the station list for the search form),
-    │                      trains.server.ts (the train search),
-    │                      seats.ts and seats.server.ts (the seat map and the holds),
-    │                      bookings.ts and bookings.server.ts (checkout, payment, tickets and cancelling)
-    ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station),
-    │                      dates.ts (journey dates as YYYY-MM-DD in Bangladesh time), i18n/, utils.ts
-    ├── hooks/             Custom React hooks
-    ├── types/             TypeScript types
-    └── config/site.ts     Site-wide settings
-```
-
-### Inside `apps/api`
-
-Each feature has its own folder with the same pieces: `controllers/` (the routes), `services/` (the logic), `dto/` (what comes in and goes out) and a module file at the root of the folder that wires them together. Anything used by several features lives in `shared/`.
-
-```
-apps/api/
-├── prisma/                schema.prisma and the migrations (database changes, one per feature)
-│   └── seed/              Railway data: stations.json and trains.json (the real stations, stops, times and off days),
-│                          data.ts (reads them, gives each train its coaches and shares its seats between stations)
-│                          and seed.ts (loads it all)
-└── src/
-    ├── auth/              Login, registration, logout, current user
-    │   ├── controllers/   auth.controller.ts (the /auth routes)
-    │   ├── services/      auth.service.ts (register, login, logout), password.service.ts (argon2id),
-    │   │                  session.service.ts (sessions in the database),
-    │   │                  session-cookie.service.ts (sets, reads and clears the cookie)
-    │   ├── dto/           Input rules: login.dto.ts, register.dto.ts, auth-fields.ts
-    │   └── auth.module.ts
-    ├── users/             The users table
-    │   ├── services/      users.service.ts (find, create, duplicate checks),
-    │   │                  nid-crypto.service.ts (hashes and encrypts the NID)
-    │   ├── dto/           create-user.dto.ts, auth-user.dto.ts (the user the website sees)
-    │   └── users.module.ts
-    ├── stations/          The stations table
-    │   ├── controllers/   stations.controller.ts (the /stations route)
-    │   ├── services/      stations.service.ts (lists every station)
-    │   ├── dto/           station.dto.ts (the station the website sees)
-    │   └── stations.module.ts
-    ├── trains/            Trains, their stops, coaches and seats, and the train search
-    │   ├── controllers/   trains.controller.ts (the /trains/search route)
-    │   ├── services/      train-search.service.ts (which trains run between two stations on a date),
-    │   │                  journey.service.ts (a train, two stations and a date, checked), seat-map.service.ts (the seats of one class, free or taken),
-    │   │                  release.service.ts (how many seats are on sale yet, and when more open),
-    │   │                  fare.service.ts (works out a fare from distance and class),
-    │   │                  trains.service.ts (one train with its route and coaches)
-    │   ├── dto/           train-search.dto.ts (the search input and result), train-detail.dto.ts
-    │   └── trains.module.ts
-    ├── bookings/          Checkout, the pretend payment and paid bookings
-    │   ├── controllers/   bookings.controller.ts (the /bookings routes, login needed)
-    │   ├── services/      bookings.service.ts (checkout, create a booking, list and read tickets, cancel and refund),
-    │   │                  payment.service.ts (the pretend gateway: yes or no by fixed rules)
-    │   ├── dto/           booking.dto.ts
-    │   └── bookings.module.ts
-    ├── holds/             Seats a person is holding while they decide
-    │   ├── controllers/   holds.controller.ts (the /holds routes, login needed)
-    │   ├── services/      holds.service.ts (hold, list and release a seat, with the rules)
-    │   ├── dto/           hold.dto.ts
-    │   └── holds.module.ts
-    ├── prisma/            Database connection
-    ├── config/env.ts      Checks the .env settings when the server starts
-    ├── shared/            Used by many features
-    │   ├── constants/     Fixed values: session and input rules, hashing settings, rate limits, fare rates
-    │   ├── decorators/    @CurrentUser()
-    │   ├── filters/       Turns every error into { code }
-    │   ├── guards/        AuthGuard: only lets signed-in users through
-    │   ├── pipes/         ZodPipe: checks a request body against a dto
-    │   └── types/         Error codes and request types
-    ├── app.module.ts
-    └── main.ts
-```
-
-## Tech stack
 
 | Part       | Choice                                                  |
 | ---------- | ------------------------------------------------------- |
 | Frontend   | Next.js, TypeScript, Tailwind CSS, shadcn/ui, next-intl |
 | Backend    | NestJS, TypeScript                                      |
-| Database   | PostgreSQL 17 (Docker / OrbStack)                       |
+| Database   | PostgreSQL 17 (Docker / OrbStack locally, Neon online)  |
 | ORM        | Prisma 7                                                |
 | Validation | Zod (the same rules are in both apps)                   |
 
-## First-time setup
+## Try it yourself
+
+1. Open the live demo (or run it locally, below) and **register** with any valid-looking Bangladeshi mobile number and NID. These are stored for the demo only.
+2. **Search** a journey, for example Dhaka to Chattogram in the next 10 days, and choose a train and class.
+3. **Pick up to 6 seats**, go to checkout and choose a payment method.
+4. Use the demo values shown on the payment popup: wallets take any valid mobile number, code `12345` and PIN `1234` (PIN `0000` shows a failed payment). The card is `4242 4242 4242 4242` with a future expiry and any 3-digit CVC (`4000 0000 0000 0002` is declined).
+5. Open **My tickets** to see the QR e-ticket, scan or check it, and try cancelling a seat.
+
+## Getting started
+
+### First-time setup
 
 You need Node.js 22 or newer and Docker (OrbStack works).
 
@@ -156,7 +133,7 @@ Where the data comes from:
 - **Corrected:** eight trains (771, 772, 774, 784, 799, 800, 809, 810) had a time in the source that ran a little backwards. Those times were moved to the neighbouring stop's time, and 810 was put back in running order starting from Burimari.
 - **Written by hand:** the Bangla station and train names.
 
-## Running the apps
+### Running the apps
 
 Use two terminals.
 
@@ -174,9 +151,11 @@ cd apps/web
 npm run dev
 ```
 
-The website never calls the API directly. It calls `/api/...` on its own address and Next.js forwards the request to the API (see `rewrites` in `apps/web/next.config.ts`). To point at a different API address, set `API_URL` (see `apps/web/.env.example`).
+The website never calls the API directly. It calls `/api/...` on its own address and the website forwards the request to the API (see `apps/web/src/app/api/[...path]/route.ts`). To point at a different API address, set `API_URL` (see `apps/web/.env.example`).
 
-## How login works
+## How it works
+
+### Accounts and login
 
 - **Passwords** are hashed with argon2id. The password itself is never stored or logged.
 - **NID** is never stored as plain text. A keyed hash (`NID_HASH_SECRET`) is used to refuse a second account with the same NID. An encrypted copy (`NID_ENCRYPTION_KEY`, AES-256-GCM) lets the server show the NID back to its owner, and only to its owner, on `GET /auth/me`. Back up `NID_ENCRYPTION_KEY`: without it, stored NIDs cannot be read.
@@ -185,7 +164,7 @@ The website never calls the API directly. It calls `/api/...` on its own address
 - **Errors** come back as codes (`PHONE_TAKEN`, `INVALID_CREDENTIALS`...), and the website shows them in the user's language. A wrong phone number and a wrong password give the same answer.
 - There is no phone verification (no SMS), so anyone can register with any valid-looking number.
 
-### API
+### API reference
 
 | Method and path                                                          | What it does                                                                                                                                                       |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -265,19 +244,119 @@ The QR on an e-ticket holds a link, `/verify/<PNR>`, so any phone camera opens i
 - **Fees.** The fee is a share of the fare, set in `apps/api/src/shared/constants/cancellation.constants.ts`: 10% more than 48 hours before departure, 25% from 24 to 48 hours, 50% from 6 to 24 hours, and no cancelling inside 6 hours. The service charge is never refunded. The departure time is the one at the boarding station, in Bangladesh time. The website shows the same numbers from `apps/web/src/config/cancellation.ts`.
 - **The refund** is pretend: it is recorded (a reference, the fee and the amount) and shown as sent back to the method used to pay.
 - **Seats go back on sale.** A cancelled seat leaves the booking, so the seat map and search show it free again.
-- **Limit.** The 4-seat limit counts seats already paid for on the same journey as well as seats being held.
+- **Limit.** The 6-seat limit counts seats already paid for on the same journey as well as seats being held.
 - **Monthly limit.** A person can buy at most 6 tickets in one calendar month (counted in Bangladesh time), and then has to wait for the next month. Held seats count toward it, cancelled seats do not. The number is `seatsPerMonth` in `apps/api/src/shared/constants/limits.constants.ts`. My tickets shows how many have been used.
 
-## Build order
+## Project structure
 
-The project is built one feature at a time. Database tables are added only when a feature needs them.
+```
+relgari/
+├── apps/
+│   ├── web/              Next.js frontend (what users see)
+│   └── api/              NestJS backend (the server)
+├── docker-compose.yml    Local PostgreSQL (shows up as "relgari" in OrbStack)
+└── README.md
+```
 
-1. Landing page and login or registration (users and sessions tables) ✅
-2. Stations, trains, coaches and seats (stations, trains, train_stops, coaches and seats tables) ✅
-3. Train search (station_quotas table) ✅
-4. Seat map and seat holds (holds table) ✅
-5. Fake payment and QR tickets (bookings and booking_seats tables) ✅
-6. My tickets, cancel and refund (refunds and refund_seats tables) ✅
+### Inside `apps/web`
+
+```
+apps/web/
+├── messages/          English and Bangla text (en.json, bn.json)
+└── src/
+    ├── app/
+    │   ├── (marketing)/   Public pages: layout.tsx (header and footer) and page.tsx (landing page)
+    │   ├── layout.tsx     Root layout: fonts, language
+    │   └── globals.css    Theme colors
+    ├── components/
+    │   ├── ui/            shadcn/ui components (Button, Input, Select...)
+    │   ├── layout/        Navbar, account menu, Footer, Logo, language switch
+    │   └── sections/      Page sections, one folder per feature
+    │       ├── landing/   Landing page. Single-file sections sit here; a section with
+    │       │              several files gets its own folder (hero/, departure-board/)
+    │       ├── auth/      Login and registration popup
+    │       ├── search/    Search results: the train card and the row of dates
+    │       ├── seats/     Seat page: the coach map, seat buttons, the panel of held seats and the waiting-room gate
+    │       ├── checkout/  Checkout page and the pretend payment popup (bKash, Nagad, Rocket, card)
+    │       ├── ticket/    My tickets list, the e-ticket with its QR code, and the cancel popup
+    │       └── verify/    The page a QR code opens, and the check-a-ticket page (PNR box and camera scan)
+    ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
+    │                      auth.server.ts (who is signed in, used by the server),
+    │                      stations.server.ts (the station list for the search form),
+    │                      trains.server.ts (the train search),
+    │                      seats.ts and seats.server.ts (the seat map, its version check and the holds),
+    │                      queue.ts (join or leave the waiting room),
+    │                      bookings.ts and bookings.server.ts (checkout, payment, tickets and cancelling)
+    ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station),
+    │                      dates.ts (journey dates as YYYY-MM-DD in Bangladesh time), clock.ts (12-hour Bangladesh times),
+    │                      visitor.ts (an anonymous id for the waiting room), i18n/, utils.ts
+    ├── hooks/             Custom React hooks
+    ├── types/             TypeScript types
+    └── config/site.ts     Site-wide settings
+```
+
+### Inside `apps/api`
+
+Each feature has its own folder with the same pieces: `controllers/` (the routes), `services/` (the logic), `dto/` (what comes in and goes out) and a module file at the root of the folder that wires them together. Anything used by several features lives in `shared/`.
+
+```
+apps/api/
+├── prisma/                schema.prisma and the migrations (database changes, one per feature)
+│   └── seed/              Railway data: stations.json and trains.json (the real stations, stops, times and off days),
+│                          data.ts (reads them, gives each train its coaches and shares its seats between stations)
+│                          and seed.ts (loads it all)
+└── src/
+    ├── auth/              Login, registration, logout, current user
+    │   ├── controllers/   auth.controller.ts (the /auth routes)
+    │   ├── services/      auth.service.ts (register, login, logout), password.service.ts (argon2id),
+    │   │                  session.service.ts (sessions in the database),
+    │   │                  session-cookie.service.ts (sets, reads and clears the cookie)
+    │   ├── dto/           Input rules: login.dto.ts, register.dto.ts, auth-fields.ts
+    │   └── auth.module.ts
+    ├── users/             The users table
+    │   ├── services/      users.service.ts (find, create, duplicate checks),
+    │   │                  nid-crypto.service.ts (hashes and encrypts the NID)
+    │   ├── dto/           create-user.dto.ts, auth-user.dto.ts (the user the website sees)
+    │   └── users.module.ts
+    ├── stations/          The stations table
+    │   ├── controllers/   stations.controller.ts (the /stations route)
+    │   ├── services/      stations.service.ts (lists every station)
+    │   ├── dto/           station.dto.ts (the station the website sees)
+    │   └── stations.module.ts
+    ├── trains/            Trains, their stops, coaches and seats, and the train search
+    │   ├── controllers/   trains.controller.ts (the /trains/search route)
+    │   ├── services/      train-search.service.ts (which trains run between two stations on a date),
+    │   │                  seat-version.service.ts (the cheap change code for a seat map),
+    │                      journey.service.ts (a train, two stations and a date, checked), seat-map.service.ts (the seats of one class, free or taken),
+    │   │                  release.service.ts (how many seats are on sale yet, and when more open),
+    │   │                  fare.service.ts (works out a fare from distance and class),
+    │   │                  trains.service.ts (one train with its route and coaches)
+    │   ├── dto/           train-search.dto.ts (the search input and result), train-detail.dto.ts
+    │   └── trains.module.ts
+    ├── bookings/          Checkout, the pretend payment and paid bookings
+    │   ├── controllers/   bookings.controller.ts (the /bookings routes, login needed)
+    │   ├── services/      bookings.service.ts (checkout, create a booking, list and read tickets, cancel and refund),
+    │   │                  payment.service.ts (the pretend gateway: yes or no by fixed rules)
+    │   ├── dto/           booking.dto.ts
+    │   └── bookings.module.ts
+    ├── holds/             Seats a person is holding while they decide
+    │   ├── controllers/   holds.controller.ts (the /holds routes, login needed)
+    │   ├── services/      holds.service.ts (hold, list and release a seat, with the rules)
+    │   ├── dto/           hold.dto.ts
+    │   └── holds.module.ts
+    ├── queue/             The waiting room: controllers/ (/queue/join and /leave), services/queue.service.ts (the lines, in memory)
+    ├── prisma/            Database connection
+    ├── config/env.ts      Checks the .env settings when the server starts
+    ├── shared/            Used by many features
+    │   ├── constants/     Fixed values: session and input rules, hashing settings, rate limits, fare rates
+    │   ├── decorators/    @CurrentUser()
+    │   ├── filters/       Turns every error into { code }
+    │   ├── guards/        AuthGuard: only lets signed-in users through
+    │   ├── pipes/         ZodPipe: checks a request body against a dto
+    │   └── types/         Error codes and request types
+    ├── app.module.ts
+    └── main.ts
+```
 
 ## Deploying
 
