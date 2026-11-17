@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { QueueGate } from "@/components/sections/seats/queue-gate";
 import { SeatPicker } from "@/components/sections/seats/seat-picker";
 import { CLASS_KEYS, DEFAULT_CLASS } from "@/config/site";
 import { isDateString } from "@/lib/dates";
@@ -57,12 +58,15 @@ export default async function SeatsPage({ searchParams }: PageProps<"/seats">) {
     );
   }
 
+  const query = { train, from, to, date, cls };
+  const results = `/search?${new URLSearchParams({ from, to, date, class: cls })}`;
   return (
-    <SeatPicker
+    <QueueGate
       key={`${train}-${from}-${to}-${date}-${cls}`}
-      query={{ train, from, to, date, cls }}
-      initialMap={outcome.data}
-      user={user}
-    />
+      query={query}
+      results={results}
+    >
+      <SeatPicker query={query} initialMap={outcome.data} user={user} />
+    </QueueGate>
   );
 }

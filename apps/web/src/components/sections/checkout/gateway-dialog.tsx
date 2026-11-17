@@ -96,8 +96,10 @@ export function GatewayDialog({
     setValues((v) => ({ ...v, [key]: value }));
     setFieldError(undefined);
   };
-  const errorText = (code: string) =>
-    t.has(`errors.${code}`) ? t(`errors.${code}`) : t("errors.INTERNAL");
+  const errorText = (code: string, seconds = 30) =>
+    t.has(`errors.${code}`)
+      ? t(`errors.${code}`, { seconds })
+      : t("errors.INTERNAL");
   const total = format.number(amount);
 
   async function submit() {
@@ -122,6 +124,8 @@ export function GatewayDialog({
     } catch (error) {
       await pause(500);
       const code = error instanceof ApiRequestError ? error.code : "INTERNAL";
+      const seconds =
+        error instanceof ApiRequestError ? (error.retryAfter ?? 30) : 30;
       const backTo: Partial<Record<string, Step>> = {
         INVALID_WALLET_NUMBER: "number",
         INVALID_OTP: "otp",
@@ -130,10 +134,10 @@ export function GatewayDialog({
       };
       const target = backTo[code];
       if (target) {
-        setFieldError(errorText(code));
+        setFieldError(errorText(code, seconds));
         setStep(target);
       } else {
-        setFailure(errorText(code));
+        setFailure(errorText(code, seconds));
         setStep("failed");
       }
     }

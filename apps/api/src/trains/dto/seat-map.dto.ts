@@ -16,6 +16,11 @@ export const seatMapSchema = z.object({
   class: z.enum(['schair', 'snigdha', 'acs', 'ac']),
 });
 
+export const seatVersionSchema = z.object({
+  from: stationCode,
+  date: z.string().refine(isDateString),
+});
+
 export type SeatMapQuery = z.infer<typeof seatMapSchema>;
 
 export type SeatState = 'free' | 'taken';

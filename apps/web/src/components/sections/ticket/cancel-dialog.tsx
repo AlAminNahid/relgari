@@ -39,8 +39,9 @@ export function CancelDialog({ booking }: { booking: Booking }) {
   const errorText = useCallback(
     (e: unknown) => {
       const code = e instanceof ApiRequestError ? e.code : "INTERNAL";
+      const seconds = e instanceof ApiRequestError ? (e.retryAfter ?? 30) : 30;
       return t.has(`errors.${code}`)
-        ? t(`errors.${code}`)
+        ? t(`errors.${code}`, { seconds })
         : t("errors.INTERNAL");
     },
     [t],

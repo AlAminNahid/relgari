@@ -10,6 +10,7 @@ import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import type { Booking, PurchaseLimit } from "@/types/api";
+import { formatTime } from "@/lib/clock";
 
 type Tab = "upcoming" | "past" | "cancelled";
 
@@ -162,7 +163,9 @@ export function TicketsList({
                       timeZone: "UTC",
                     })}
                     {" · "}
-                    {t("departs", { time: clock(booking.departure, format) })}
+                    {t("departs", {
+                      time: formatTime(booking.departure, locale),
+                    })}
                   </p>
 
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -219,14 +222,4 @@ export function TicketsList({
       )}
     </div>
   );
-}
-
-function clock(time: string, format: ReturnType<typeof useFormatter>) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: "UTC",
-  });
 }

@@ -28,6 +28,15 @@ export class ReleaseService {
     return Math.min(Math.round((quota * percent) / 100), quota - 1);
   }
 
+  openedBatches(journeyDate: string, now: Date): number {
+    const total = RELEASE.batches.schair.length;
+    let opened = 0;
+    while (opened < total && this.batchTime(journeyDate, opened) <= now) {
+      opened += 1;
+    }
+    return opened;
+  }
+
   status(
     seatClass: SeatClass,
     quota: number,

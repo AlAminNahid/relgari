@@ -5,6 +5,7 @@ import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import type { TicketCheck } from "@/types/api";
+import { formatTime } from "@/lib/clock";
 
 export function VerifyResult({ ticket }: { ticket: TicketCheck }) {
   const t = useTranslations("verify");
@@ -22,13 +23,7 @@ export function VerifyResult({ ticket }: { ticket: TicketCheck }) {
     departed: { Icon: ClockIcon, tone: "bg-muted-foreground text-white" },
   }[ticket.status];
 
-  const [hours, minutes] = ticket.departure.split(":").map(Number);
-  const time = format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: "UTC",
-  });
+  const time = formatTime(ticket.departure, locale);
 
   return (
     <div className="mx-auto max-w-[520px] px-5 pb-20 pt-9">

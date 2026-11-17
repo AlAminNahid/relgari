@@ -11,6 +11,7 @@ import {
   type LiveHold,
 } from "@/components/sections/seats/hold-panel";
 import type { SeatView } from "@/components/sections/seats/seat-button";
+import { SEAT_CHECK_MS, SEAT_RELOAD_MS } from "@/config/site";
 import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import { ApiRequestError } from "@/services/http";
 import { getLimit } from "@/services/bookings";
 import {
   getSeatMap,
+  getSeatVersion,
   holdSeat,
   listHolds,
   releaseHold,
@@ -30,8 +32,7 @@ import type {
   SeatInfo,
   SeatMap,
 } from "@/types/api";
-
-const POLL_MS = 10_000;
+import { formatDhakaMoment, formatTime } from "@/lib/clock";
 
 const live = (holds: Hold[]): LiveHold[] =>
   holds.map((hold) => ({
@@ -89,17 +90,27 @@ export function SeatPicker({
 
   useEffect(() => {
     const first = setTimeout(() => void refresh(), 0);
-    const id = setInterval(() => void refresh(), POLL_MS);
+    const full = setInterval(() => void refresh(), SEAT_RELOAD_MS);
+    let known: string | null = null;
+    const check = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const { version } = await getSeatVersion(query);
+        if (known !== null && version !== known) void refresh();
+        known = version;
+      } catch {}
+    }, SEAT_CHECK_MS);
     const onVisible = () => {
       if (document.visibilityState === "visible") void refresh();
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       clearTimeout(first);
-      clearInterval(id);
+      clearInterval(full);
+      clearInterval(check);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [refresh]);
+  }, [refresh, query]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -118,8 +129,10 @@ export function SeatPicker({
   const errorText = useCallback(
     (error: unknown) => {
       const code = error instanceof ApiRequestError ? error.code : "INTERNAL";
+      const seconds =
+        error instanceof ApiRequestError ? (error.retryAfter ?? 30) : 30;
       return t.has(`errors.${code}`)
-        ? t(`errors.${code}`)
+        ? t(`errors.${code}`, { seconds })
         : t("errors.INTERNAL");
     },
     [t],
@@ -219,15 +232,7 @@ export function SeatPicker({
       month: "long",
       timeZone: "UTC",
     });
-  const when = (iso: string) =>
-    format.dateTime(new Date(iso), {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-      timeZone: "Asia/Dhaka",
-    });
+  const when = (iso: string) => formatDhakaMoment(iso, locale);
   const results = `/search?${new URLSearchParams({
     from: query.from,
     to: query.to,
@@ -289,7 +294,7 @@ export function SeatPicker({
               month: "long",
               timeZone: "UTC",
             }),
-            t("departs", { time: clock(map.departure, format) }),
+            t("departs", { time: formatTime(map.departure, locale) }),
             tc(map.seatClass),
             t("fare", { fare: format.number(map.fare) }),
           ].map((chip) => (
@@ -444,14 +449,4 @@ export function SeatPicker({
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
-}
-
-function clock(time: string, format: ReturnType<typeof useFormatter>) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: "UTC",
-  });
 }

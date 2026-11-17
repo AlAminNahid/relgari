@@ -16,6 +16,8 @@ import {
   type TrainSearchDto,
 } from '../dto/train-search.dto.js';
 import { SeatMapService } from '../services/seat-map.service.js';
+import { SeatVersionService } from '../services/seat-version.service.js';
+import { seatVersionSchema } from '../dto/seat-map.dto.js';
 import { TrainSearchService } from '../services/train-search.service.js';
 
 @Controller('trains')
@@ -23,6 +25,7 @@ export class TrainsController {
   constructor(
     private readonly trainSearch: TrainSearchService,
     private readonly seatMaps: SeatMapService,
+    private readonly seatVersions: SeatVersionService,
   ) {}
 
   @Get('search')
@@ -47,6 +50,26 @@ export class TrainsController {
       } satisfies ApiError);
     }
     return this.trainSearch.board(parsed.data, new Date());
+  }
+
+  @Get(':number/seats/version')
+  @Header('Cache-Control', 'no-store')
+  seatVersion(
+    @Param('number', ParseIntPipe) number: number,
+    @Query() query: Record<string, unknown>,
+  ): Promise<{ version: string }> {
+    const parsed = seatVersionSchema.safeParse(query);
+    if (!parsed.success) {
+      throw new BadRequestException({
+        code: 'VALIDATION_FAILED',
+      } satisfies ApiError);
+    }
+    return this.seatVersions.version(
+      number,
+      parsed.data.from,
+      parsed.data.date,
+      new Date(),
+    );
   }
 
   @Get(':number/seats')

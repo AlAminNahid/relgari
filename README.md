@@ -195,6 +195,9 @@ The website never calls the API directly. It calls `/api/...` on its own address
 | `GET /auth/me`                                                           | The signed-in user, including their own NID                                                                                                                        |
 | `GET /stations`                                                          | Every station (code, English name, Bangla name). Public                                                                                                            |
 | `GET /trains/:number/seats?from=DAC&to=CGP&date=2026-11-20&class=schair` | The seats of one class on a train, each free or taken. Public                                                                                                      |
+| `GET /trains/:number/seats/version?from=DAC&date=2026-11-20`             | A short code that changes whenever a seat on that run is held, released, booked or put on sale. Public, cheap, checked every 3 seconds by the seat page            |
+| `POST /queue/join`                                                       | Take or keep a place in the waiting room of one train and date. Returns `admitted` or `waiting` with place and estimate. Public                                    |
+| `POST /queue/leave`                                                      | Give up your place. Public                                                                                                                                         |
 | `GET /holds/current`                                                     | The seats you are holding, with the seconds left on each. Login needed                                                                                             |
 | `POST /holds`                                                            | Hold one seat. Login needed                                                                                                                                        |
 | `DELETE /holds/:id`                                                      | Release one of your held seats. Login needed                                                                                                                       |
@@ -228,6 +231,19 @@ Held and booked seats are taken off the seats on sale. A seat counts for the who
 - **No double holds.** Holds on one run of a train go through one at a time (a database lock), and the database also refuses two holds on the same seat.
 - **On sale.** A seat can only be held while the station still has seats released and not held. The seat map shows the whole coach; the count is the limit.
 - **AC sofas.** An AC sofa held as seats (by day) cannot also be held as berths (by night), and the other way round. Berths are stored as seats of kind `berth` next to the day seats.
+
+### Crowds: the waiting room
+
+When many people open the seat page of the same train and date, the API lets in a fixed number and queues the rest instead of failing.
+
+- **Capacity.** 150 people at a time per train and date (`QUEUE_CAPACITY` in the API env). Searching and the landing page are never queued. The seat page asks to join first; if the queue cannot be reached it lets the person in (fail open).
+- **Place.** Waiting people see their place, how many are waiting and a rough time. They are checked every 3 seconds and enter automatically; refreshing the page keeps the place. A waiting place is kept 2 minutes after the last check; someone inside is dropped after 60 seconds of silence.
+- **Priority.** A signed-in person already holding seats on that run goes ahead, so a person paying is not sent to the back.
+- **Seat map.** The page checks the seat version every 3 seconds and reloads the map only when it changed (plus a full reload every 30 seconds and when the tab is shown again).
+- **Messages.** A rate-limit answer shows "too many requests, try again in N seconds", using the API's `Retry-After`.
+- **Times.** All times show in 12-hour Bangladesh style (`apps/web/src/lib/clock.ts`); Bangla uses ভোর, সকাল, দুপুর, বিকাল, সন্ধ্যা, রাত.
+- **Limits.** The queue lives in the API's memory, so it resets on a restart and works for one API instance only. Settings: `apps/api/src/shared/constants/queue.constants.ts`.
+- **Try it.** With the API running with a `PROXY_SECRET` of at least 16 characters: `PROXY_SECRET=... node apps/api/scripts/simulate-crowd.mjs 300` sends 300 visitors and checks that 150 get in, places are 1..150 with no gaps, and freed places go to the front of the line.
 
 ### The pretend payment
 

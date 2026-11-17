@@ -19,6 +19,7 @@ import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import { getBoard } from "@/services/board";
 import type { DepartureBoard as BoardData, Station } from "@/types/api";
+import { formatTime } from "@/lib/clock";
 
 const FEW_SEATS = 15;
 
@@ -73,15 +74,7 @@ export function DepartureBoard({
             month: "short",
             timeZone: "UTC",
           });
-  const clock = (time: string) => {
-    const [h, m] = time.split(":").map(Number);
-    return format.dateTime(new Date(Date.UTC(2000, 0, 1, h, m)), {
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-      timeZone: "UTC",
-    });
-  };
+  const clock = (time: string) => formatTime(time, locale);
 
   const head =
     "px-4 font-mono text-[11.5px] font-medium uppercase tracking-[.08em] text-[#6fa591]";

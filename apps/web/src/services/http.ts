@@ -7,6 +7,7 @@ export class ApiRequestError extends Error {
     readonly status: number,
     readonly code: RequestErrorCode,
     readonly fields?: ApiError["fields"],
+    readonly retryAfter?: number,
   ) {
     super(code);
   }
@@ -34,7 +35,13 @@ export async function api<T = void>(
 
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as Partial<ApiError>;
-    throw new ApiRequestError(res.status, body.code ?? "INTERNAL", body.fields);
+    const wait = Number(res.headers.get("retry-after"));
+    throw new ApiRequestError(
+      res.status,
+      body.code ?? "INTERNAL",
+      body.fields,
+      res.status === 429 ? (wait > 0 ? Math.ceil(wait) : 30) : undefined,
+    );
   }
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;

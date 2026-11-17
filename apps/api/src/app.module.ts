@@ -9,6 +9,7 @@ import { validateEnv } from './config/env.js';
 import { BookingsModule } from './bookings/bookings.module.js';
 import { HoldsModule } from './holds/holds.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { QueueModule } from './queue/queue.module.js';
 import { THROTTLE } from './shared/constants/throttle.constants.js';
 import { ApiExceptionFilter } from './shared/filters/api-exception.filter.js';
 import { AppThrottlerGuard } from './shared/guards/app-throttler.guard.js';
@@ -46,6 +47,7 @@ function accountPhone(req: Request): string {
     TrainsModule,
     HoldsModule,
     BookingsModule,
+    QueueModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AppThrottlerGuard },

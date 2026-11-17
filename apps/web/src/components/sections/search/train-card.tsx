@@ -4,18 +4,11 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ClassKey } from "@/config/site";
 import { cn } from "@/lib/utils";
 import type { ClassAvailability, TrainResult } from "@/types/api";
+import { formatDhakaMoment, formatTime } from "@/lib/clock";
 
 function useClock() {
-  const format = useFormatter();
-  return (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-      timeZone: "UTC",
-    });
-  };
+  const locale = useLocale();
+  return (time: string) => formatTime(time, locale);
 }
 
 export interface Journey {
@@ -38,7 +31,6 @@ export function TrainCard({
   const locale = useLocale();
   const format = useFormatter();
   const clock = useClock();
-  // The class picked in the search is missing when the train does not sell it for this journey.
   const missing =
     preferred && !train.classes.some((item) => item.seatClass === preferred);
 
@@ -136,16 +128,10 @@ function ClassTile({
   const t = useTranslations("results");
   const tc = useTranslations("classNames");
   const format = useFormatter();
+  const locale = useLocale();
 
   const when = item.nextReleaseAt
-    ? format.dateTime(new Date(item.nextReleaseAt), {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23",
-        timeZone: "Asia/Dhaka",
-      })
+    ? formatDhakaMoment(item.nextReleaseAt, locale)
     : "";
 
   let headline: string;

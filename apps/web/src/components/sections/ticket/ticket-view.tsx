@@ -6,6 +6,7 @@ import { METHOD_STYLE } from "@/config/payment";
 import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import type { Booking } from "@/types/api";
+import { formatDhakaMoment, formatTime } from "@/lib/clock";
 
 export function TicketView({
   booking,
@@ -19,15 +20,7 @@ export function TicketView({
   const locale = useLocale();
   const format = useFormatter();
 
-  const clock = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return format.dateTime(new Date(Date.UTC(2000, 0, 1, hours, minutes)), {
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-      timeZone: "UTC",
-    });
-  };
+  const clock = (time: string) => formatTime(time, locale);
   const method = METHOD_STYLE[booking.paymentMethod];
   const taka = (value: number) => `৳${format.number(value)}`;
 
@@ -168,14 +161,7 @@ export function TicketView({
                   {t("transaction")}{" "}
                   <span className="font-mono">{booking.transactionId}</span>
                   {" · "}
-                  {format.dateTime(new Date(booking.paidAt), {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hourCycle: "h23",
-                    timeZone: "Asia/Dhaka",
-                  })}
+                  {formatDhakaMoment(booking.paidAt, locale)}
                 </p>
               </div>
             </div>
@@ -210,14 +196,7 @@ export function TicketView({
                     {refund.reference}
                   </b>
                   <span className="text-[13px] text-muted-foreground">
-                    {format.dateTime(new Date(refund.createdAt), {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hourCycle: "h23",
-                      timeZone: "Asia/Dhaka",
-                    })}
+                    {formatDhakaMoment(refund.createdAt, locale)}
                   </span>
                 </div>
                 <ul className="mt-2 divide-y">

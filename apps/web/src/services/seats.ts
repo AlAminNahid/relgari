@@ -34,3 +34,8 @@ export function holdSeat(q: SeatQuery, seatId: string) {
 export function releaseHold(id: string) {
   return api(`/holds/${id}`, { method: "DELETE" });
 }
+
+export function getSeatVersion(q: SeatQuery) {
+  const query = new URLSearchParams({ from: q.from, date: q.date });
+  return api<{ version: string }>(`/trains/${q.train}/seats/version?${query}`);
+}
