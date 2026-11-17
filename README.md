@@ -220,7 +220,7 @@ Held and booked seats are taken off the seats on sale. A seat counts for the who
 
 ### Holding seats
 
-- **Limit.** A person holds at most 4 seats at once, all on one journey (same train, date and stations). Once they hold 4 they cannot hold another until they release one.
+- **Limit.** A person holds at most 6 seats at once, all on one journey (same train, date and stations), enough for a family. Once they hold 6 they cannot hold another until they release one.
 - **Timer.** Each seat has its own 5 minutes, counted from the moment it was held. A seat that runs out is free again for everyone. Both numbers are in `apps/api/src/shared/constants/hold.constants.ts`.
 - **Run date.** A hold belongs to the day the train sets off, not the day the passenger boards, so a seat on an overnight train cannot be sold twice.
 - **No double holds.** Holds on one run of a train go through one at a time (a database lock), and the database also refuses two holds on the same seat.
@@ -244,7 +244,7 @@ Nothing talks to a bank or a wallet and no money moves. The checkout offers bKas
 - **The refund** is pretend: it is recorded (a reference, the fee and the amount) and shown as sent back to the method used to pay.
 - **Seats go back on sale.** A cancelled seat leaves the booking, so the seat map and search show it free again.
 - **Limit.** The 4-seat limit counts seats already paid for on the same journey as well as seats being held.
-- **Monthly limit.** A person can buy at most 4 tickets in one calendar month (counted in Bangladesh time), and then has to wait for the next month. Held seats count toward it, cancelled seats do not. The number is `seatsPerMonth` in `apps/api/src/shared/constants/limits.constants.ts`. My tickets shows how many have been used.
+- **Monthly limit.** A person can buy at most 6 tickets in one calendar month (counted in Bangladesh time), and then has to wait for the next month. Held seats count toward it, cancelled seats do not. The number is `seatsPerMonth` in `apps/api/src/shared/constants/limits.constants.ts`. My tickets shows how many have been used.
 
 ## Build order
 

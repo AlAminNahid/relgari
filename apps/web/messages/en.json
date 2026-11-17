@@ -132,7 +132,7 @@
       "UNAUTHENTICATED": "Please log in again.",
       "NETWORK": "Could not reach the server. Check your connection.",
       "INTERNAL": "Something went wrong. Try again.",
-      "JOURNEY_LIMIT": "You already have seats on this journey. Four is the most, so release or cancel one first.",
+      "JOURNEY_LIMIT": "You already have seats on this journey. Six is the most, so release or cancel one first.",
       "MONTHLY_LIMIT": "You can buy at most {max, number} tickets a month, and you have reached that."
     },
     "monthReached": "You have bought {max, number} tickets this month, the most allowed. You can buy again from {date}.",
@@ -218,7 +218,11 @@
     "stepCode": "Code",
     "stepPin": "PIN",
     "fill": "Use demo value",
-    "stages": ["Contacting {method}…", "Verifying your details…", "Confirming your payment…"],
+    "stages": [
+      "Contacting {method}…",
+      "Verifying your details…",
+      "Confirming your payment…"
+    ],
     "successTitle": "Payment successful",
     "successNote": "Taking you to your e-ticket…",
     "bank": "your bank"
@@ -320,7 +324,7 @@
       },
       {
         "b": "Held for 5 minutes.",
-        "t": "Pick up to 4 seats and they stay yours while you pay."
+        "t": "Pick up to 6 seats and they stay yours while you pay."
       }
     ],
     "coach": "Coach GA · S_Chair",
@@ -341,7 +345,7 @@
       },
       {
         "title": "Choose seats",
-        "text": "Tap up to 4 seats on the coach map. They are held for 5 minutes."
+        "text": "Tap up to 6 seats on the coach map. They are held for 5 minutes."
       },
       {
         "title": "Pay",

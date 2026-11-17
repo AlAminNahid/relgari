@@ -1,3 +1,3 @@
 export const PURCHASE_LIMIT = {
-  seatsPerMonth: 4,
+  seatsPerMonth: 6,
 } as const;
