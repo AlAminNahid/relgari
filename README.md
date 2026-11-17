@@ -262,3 +262,59 @@ The project is built one feature at a time. Database tables are added only when 
 4. Seat map and seat holds (holds table) ✅
 5. Fake payment and QR tickets (bookings and booking_seats tables) ✅
 6. My tickets, cancel and refund (refunds and refund_seats tables) ✅
+
+## Deploying
+
+Two setups, kept apart so testing never touches real data:
+
+|                         | Database                         | API              | Website          |
+| ----------------------- | -------------------------------- | ---------------- | ---------------- |
+| **Local (development)** | the Docker Postgres on port 5433 | `localhost:4000` | `localhost:3000` |
+| **Production**          | Neon                             | Render           | Vercel           |
+
+Secrets live only in each service's own settings (and in a local `.env`, which git ignores). Never put a database link or a key in a committed file.
+
+### Where each environment's settings live
+
+| File (all ignored by git) | Used by | Holds |
+|---|---|---|
+| `apps/api/.env` | the local API | the local database, the NID keys, port 4000 |
+| `apps/api/.env.production` | nothing runs from it: a reference copy of what Render has, plus the `db:*:prod` scripts | the Neon link, `NODE_ENV=production`, the same NID keys |
+| `apps/web/.env` | the local website | `API_URL` for localhost |
+| `apps/web/.env.vercel` | nothing runs from it: a reference copy of what Vercel has | `API_URL` = the Render address |
+
+The local app never reads the production files, so testing cannot touch real data. To run something against production on purpose: `npm run db:deploy:prod` (apply migrations to Neon) or `npm run db:studio:prod` (browse the Neon data), both from `apps/api`. When you change a value in a production file, change it in Render or Vercel too: the dashboards are what the live site actually uses. The NID keys are the same in every environment.
+
+### The database (Neon)
+
+1. Create the tables with the project's migrations, using Neon's **direct** link (the host without `-pooler`), from `apps/api`:
+
+   ```
+   DATABASE_URL="<direct link>" npx prisma migrate deploy
+   ```
+
+2. Load the railway data (stations, trains, stops, coaches, cabins, seats, quotas). `npm run db:seed` works, but sends thousands of single queries and is very slow over the internet, so copy the tables from your local database instead:
+
+   ```
+   docker exec relgari-db pg_dump -U relgari -d relgari --data-only --no-owner -t public.stations -t public.trains -t public.train_stops -t public.coaches -t public.cabins -t public.seats -t public.station_quotas > railway-data.sql
+   docker exec -i relgari-db psql "<neon link>" -v ON_ERROR_STOP=1 -1 < railway-data.sql
+   ```
+
+   This copies no users, bookings or holds. Run it once on an empty database.
+
+3. Later schema changes: run `prisma migrate deploy` again with the direct link (or add `npm run db:deploy` to the Render build command).
+
+### The API (Render)
+
+- **Root directory:** `apps/api`
+- **Build command:** `npm install && npm run build`
+- **Start command:** `npm run start:prod`
+- **Environment:** copy the values from `apps/api/.env.production`: `NODE_ENV`, `DATABASE_URL` (Neon's direct link), `NID_ENCRYPTION_KEY` and `NID_HASH_SECRET` (the same two secrets as local; back them up, since a lost encryption key cannot be recovered). `PORT` is set by Render.
+- The build tools (`prisma`, `@nestjs/cli`, `typescript` and the type packages) are in `dependencies` on purpose: Render's production install skips `devDependencies`, and the build needs them.
+
+### The website (Vercel)
+
+- **Root directory:** `apps/web`
+- **Environment** (see `apps/web/.env.vercel`): `API_URL` = the Render service's address (for example `https://relgari-api.onrender.com`), set for Production **before** the build, because the `/api/*` forwarding is fixed at build time.
+- The browser only talks to the Vercel address; Next.js forwards `/api/*` to Render. So cookies stay on one site and no CORS setting is needed.
+- Render's free service sleeps when idle, so the first request after a quiet spell can take about a minute.
