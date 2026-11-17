@@ -134,7 +134,7 @@ cd ../web && npm install
 Where the data comes from:
 
 - **Real:** train numbers, stops, arrival and departure times and weekly off days, as published by the Bangladesh Railway e-ticket service in November 2026. They live in `apps/api/prisma/seed/stations.json` and `trains.json`. Timetables change, so treat them as a snapshot.
-- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate), coaches (every train gets the same set, plus an AC coach on overnight trains) and each station's share of a train's seats (see below).
+- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate), coaches (every train gets 2 Snigdha and 3 S_Chair coaches, plus one AC coach of 12 cabins on overnight trains; Shovan is not sold on intercity trains) and each station's share of a train's seats (see below).
 - **Corrected:** eight trains (771, 772, 774, 784, 799, 800, 809, 810) had a time in the source that ran a little backwards. Those times were moved to the neighbouring stop's time, and 810 was put back in running order starting from Burimari.
 - **Written by hand:** the Bangla station and train names.
 
@@ -183,7 +183,8 @@ The website never calls the API directly. It calls `/api/...` on its own address
 Relgari does not put every ticket on sale at once. Three rules decide what a search shows:
 
 - **Station shares.** A train's seats are shared between the stations people board at (the `station_quotas` table). The first station gets half; the rest is split so a major station gets three times what a small one gets. These shares are estimates set in `apps/api/prisma/seed/data.ts`.
-- **Batches.** Booking opens 10 days before the journey, and a new batch opens every 2 days at 5:00 PM Bangladesh time, so the last batch opens 2 days before. Each class has its own percentages: Shovan and S_Chair open 30, 25, 20, 15 and 10 percent; Snigdha and AC Cabin open 20 percent each time. A small share is spread in whole seats, with at least one seat kept for the last batch.
+- **Batches.** Booking opens 10 days before the journey, and a new batch opens every 2 days at 5:00 PM Bangladesh time, so the last batch opens 2 days before. Each class has its own percentages: S_Chair opens 30, 25, 20, 15 and 10 percent; Snigdha, AC Seat and AC Cabin open 20 percent each time. A small share is spread in whole seats, with at least one seat kept for the last batch.
+- **AC Seat and AC Cabin.** An AC coach is made of cabins with 1 or 2 sofas (8 cabins with 2 and 4 with 1 in the seed, an estimate). By day a sofa seats 3 people and is sold as AC Seat (60 seats a coach). By night each sofa is a berth with an upper berth above it, sold as AC Cabin: a cabin with 2 sofas sleeps 4 and a cabin with 1 sofa sleeps 2 (40 berths a coach). Which one a passenger gets depends on when the train leaves the station they board at: 6:00 AM up to 6:00 PM is day (`apps/api/src/shared/constants/ac.constants.ts`). A station is only ever in one of the two, so the same sofas are never sold twice for the same boarding.
 - **Settings.** The window, the gap, the time and the percentages are in `apps/api/src/shared/constants/release.constants.ts`. The website's 10-day limit is `MAX_DAYS_AHEAD` in `apps/web/src/config/site.ts`.
 
 Nothing can be booked yet, so "seats available" is simply the seats released so far. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.

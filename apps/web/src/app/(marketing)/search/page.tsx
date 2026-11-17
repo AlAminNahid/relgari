@@ -3,7 +3,12 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { SearchBar } from "@/components/sections/landing/hero/search-bar";
 import { DateStrip } from "@/components/sections/search/date-strip";
 import { TrainCard } from "@/components/sections/search/train-card";
-import { CLASS_KEYS, MAX_DAYS_AHEAD, type ClassKey } from "@/config/site";
+import {
+  CLASS_KEYS,
+  DEFAULT_CLASS,
+  MAX_DAYS_AHEAD,
+  type ClassKey,
+} from "@/config/site";
 import { addDays, bdToday, dateStringToUtc, isDateString } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { getStations } from "@/services/stations.server";
@@ -21,8 +26,7 @@ export default async function SearchPage({
   const from = one(params.from)?.toUpperCase() ?? "";
   const to = one(params.to)?.toUpperCase() ?? "";
   const cls = CLASS_KEYS.find((key) => key === one(params.class)) as
-    | ClassKey
-    | undefined;
+    ClassKey | undefined;
 
   const today = bdToday();
   const requested = one(params.date) ?? "";
@@ -84,7 +88,7 @@ export default async function SearchPage({
         compact
         initial={
           data
-            ? { from: data.from, to: data.to, date, cls: cls ?? "shovan" }
+            ? { from: data.from, to: data.to, date, cls: cls ?? DEFAULT_CLASS }
             : undefined
         }
       />

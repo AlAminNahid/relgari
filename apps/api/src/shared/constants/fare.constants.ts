@@ -5,6 +5,7 @@ export const FARE = {
     shovan: 1.25,
     schair: 1.5,
     snigdha: 2.9,
+    acs: 3.5,
     ac: 4.9,
   } satisfies Record<SeatClass, number>,
   roundTo: 5,

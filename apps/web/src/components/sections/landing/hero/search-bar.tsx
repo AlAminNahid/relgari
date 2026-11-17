@@ -29,6 +29,7 @@ import {
 import { StationInput } from "@/components/sections/landing/hero/station-input";
 import {
   CLASS_KEYS,
+  DEFAULT_CLASS,
   MAX_DAYS_AHEAD,
   ROUTE_EVENT,
   type ClassKey,
@@ -72,7 +73,7 @@ export function SearchBar({
     initial ? stationName(initial.from, locale) : "",
   );
   const [to, setTo] = useState(initial ? stationName(initial.to, locale) : "");
-  const [cls, setCls] = useState<string>(initial?.cls ?? "shovan");
+  const [cls, setCls] = useState<string>(initial?.cls ?? DEFAULT_CLASS);
   const today = useToday();
   const [picked, setDate] = useState<Date | undefined>(
     initial ? fromDateString(initial.date) : undefined,

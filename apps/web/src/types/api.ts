@@ -32,7 +32,7 @@ export interface Station {
 }
 
 export interface ClassAvailability {
-  seatClass: ClassKey;
+  seatClass: ClassKey | "shovan";
   fare: number;
   quota: number;
   released: number;

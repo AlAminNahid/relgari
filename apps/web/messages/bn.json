@@ -57,6 +57,7 @@
     "notOpen": "এখনো খোলেনি",
     "opensAt": "খুলবে {when}",
     "soldOutForNow": "আপাতত শেষ",
+    "noClass": "এই যাত্রায় ট্রেনটিতে {class} নেই।",
     "soldOut": "টিকিট শেষ",
     "moreAt": "আরও {count, number}টি, {when}",
     "releaseNote": "টিকিট ধাপে ধাপে ছাড়া হয়: যাত্রার {days, number} দিন আগে বুকিং শুরু, এরপর প্রতি ২ দিন পরপর বিকেল ৫টায় আরও আসন যোগ হয়।",
@@ -70,6 +71,7 @@
     "shovan": "শোভন",
     "schair": "এস চেয়ার",
     "snigdha": "স্নিগ্ধা",
+    "acs": "এসি সিট",
     "ac": "এসি কেবিন"
   },
   "ticket": {
@@ -115,7 +117,7 @@
         "route": "ঢাকা → সিলেট",
         "departs": "০৬:৩০",
         "arrives": "১৩:০০",
-        "tags": ["snigdha", "shovan"],
+        "tags": ["snigdha", "schair"],
         "few": false
       },
       {

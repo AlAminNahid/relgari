@@ -22,7 +22,7 @@ import { FareService } from './fare.service.js';
 import { ReleaseService } from './release.service.js';
 
 const DAY_MINUTES = 1440;
-const CLASS_ORDER: SeatClass[] = ['shovan', 'schair', 'snigdha', 'ac'];
+const CLASS_ORDER: SeatClass[] = ['shovan', 'schair', 'snigdha', 'acs', 'ac'];
 const stationFields = { code: true, nameEn: true, nameBn: true } as const;
 
 function clock(minute: number): string {

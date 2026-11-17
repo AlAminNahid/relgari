@@ -25,9 +25,13 @@ export function TrainCard({
   preferred?: ClassKey;
 }) {
   const t = useTranslations("results");
+  const tc = useTranslations("classNames");
   const locale = useLocale();
   const format = useFormatter();
   const clock = useClock();
+  // The class picked in the search is missing when the train does not sell it for this journey.
+  const missing =
+    preferred && !train.classes.some((item) => item.seatClass === preferred);
 
   return (
     <article
@@ -83,15 +87,22 @@ export function TrainCard({
           {t("departed")}
         </p>
       ) : (
-        <ul className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          {train.classes.map((item) => (
-            <ClassTile
-              key={item.seatClass}
-              item={item}
-              preferred={item.seatClass === preferred}
-            />
-          ))}
-        </ul>
+        <>
+          <ul className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+            {train.classes.map((item) => (
+              <ClassTile
+                key={item.seatClass}
+                item={item}
+                preferred={item.seatClass === preferred}
+              />
+            ))}
+          </ul>
+          {missing && (
+            <p className="mt-2.5 text-[13.5px] text-muted-foreground">
+              {t("noClass", { class: tc(preferred) })}
+            </p>
+          )}
+        </>
       )}
     </article>
   );

@@ -8,6 +8,7 @@ export const RELEASE = {
     shovan: [30, 25, 20, 15, 10],
     schair: [30, 25, 20, 15, 10],
     snigdha: [20, 20, 20, 20, 20],
+    acs: [20, 20, 20, 20, 20],
     ac: [20, 20, 20, 20, 20],
   } satisfies Record<SeatClass, number[]>,
 } as const;

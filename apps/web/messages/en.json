@@ -57,6 +57,7 @@
     "notOpen": "Not open yet",
     "opensAt": "Opens {when}",
     "soldOutForNow": "Sold out for now",
+    "noClass": "No {class} on this train for this journey.",
     "soldOut": "Sold out",
     "moreAt": "{count, number} more on {when}",
     "releaseNote": "Tickets open in batches: booking starts {days, number} days before the journey, and more seats are added every 2 days at 5:00 PM.",
@@ -70,6 +71,7 @@
     "shovan": "Shovan",
     "schair": "S_Chair",
     "snigdha": "Snigdha",
+    "acs": "AC Seat",
     "ac": "AC Cabin"
   },
   "ticket": {
@@ -115,7 +117,7 @@
         "route": "Dhaka → Sylhet",
         "departs": "06:30",
         "arrives": "13:00",
-        "tags": ["snigdha", "shovan"],
+        "tags": ["snigdha", "schair"],
         "few": false
       },
       {

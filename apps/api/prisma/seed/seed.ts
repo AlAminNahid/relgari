@@ -5,9 +5,10 @@ import {
   STATIONS,
   TRAINS,
   coachesFor,
-  quotasFor,
-  type SeatClassKey,
+  quotasForTrain,
+  toMinute,
 } from './data.js';
+import { AC } from '../../src/shared/constants/ac.constants.js';
 
 try {
   process.loadEnvFile('.env');
@@ -19,13 +20,6 @@ if (!connectionString) throw new Error('DATABASE_URL is not set.');
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
 });
-
-function toMinute(time: string | undefined): number | null {
-  if (!time) return null;
-  const [clock, nextDay] = time.split('+');
-  const [hours, minutes] = clock.split(':').map(Number);
-  return (nextDay ? Number(nextDay) * 1440 : 0) + hours * 60 + minutes;
-}
 
 async function main() {
   const stationIds = new Map<string, string>();
@@ -71,6 +65,9 @@ async function main() {
     ]);
 
     const coaches = coachesFor(train);
+    await prisma.coach.deleteMany({
+      where: { trainId, code: { notIn: coaches.map((c) => c.code) } },
+    });
     for (const [index, coach] of coaches.entries()) {
       const layout = COACH_LAYOUT[coach.seatClass];
       const fields = {
@@ -95,30 +92,25 @@ async function main() {
         where: { coachId, number: { gt: total } },
       });
       seatCount += total;
-    }
-    await prisma.coach.deleteMany({
-      where: { trainId, code: { notIn: coaches.map((c) => c.code) } },
-    });
 
-    const classSeats = new Map<SeatClassKey, number>();
-    for (const coach of coaches) {
-      const layout = COACH_LAYOUT[coach.seatClass];
-      classSeats.set(
-        coach.seatClass,
-        (classSeats.get(coach.seatClass) ?? 0) +
-          layout.rows * layout.seatsPerRow,
-      );
+      if (coach.seatClass === 'ac') {
+        await prisma.cabin.deleteMany({ where: { coachId } });
+        await prisma.cabin.createMany({
+          data: AC.cabins.map((sofas, i) => ({
+            coachId,
+            number: i + 1,
+            sofas,
+          })),
+        });
+      }
     }
-    const quotaRows = [...classSeats].flatMap(([seatClass, seats]) =>
-      [...quotasFor(train, seats)]
-        .filter(([, share]) => share > 0)
-        .map(([code, share]) => ({
-          trainId,
-          stationId: stationIds.get(code)!,
-          seatClass,
-          seats: share,
-        })),
-    );
+
+    const quotaRows = quotasForTrain(train).map((quota) => ({
+      trainId,
+      stationId: stationIds.get(quota.station)!,
+      seatClass: quota.seatClass,
+      seats: quota.seats,
+    }));
     await prisma.$transaction([
       prisma.stationQuota.deleteMany({ where: { trainId } }),
       prisma.stationQuota.createMany({ data: quotaRows }),

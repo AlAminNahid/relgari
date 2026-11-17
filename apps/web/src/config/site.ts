@@ -9,8 +9,9 @@ export const NAV_LINKS = [
   { href: "/#how", key: "how" },
 ] as const;
 
-export const CLASS_KEYS = ["shovan", "schair", "snigdha", "ac"] as const;
+export const CLASS_KEYS = ["schair", "snigdha", "acs", "ac"] as const;
 export type ClassKey = (typeof CLASS_KEYS)[number];
+export const DEFAULT_CLASS: ClassKey = "schair";
 
 export const MAX_DAYS_AHEAD = 10;
 

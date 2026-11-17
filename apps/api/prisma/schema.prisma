@@ -50,12 +50,15 @@ model Session {
   @@map("sessions")
 }
 
-// The names match the class keys the website uses.
+// The names match the class keys the website uses. `ac` is the AC cabin (a berth at night) and
+// `acs` is the AC seat (the same sofas used as seats by day). Shovan is kept for later: no intercity
+// train sells it, so nothing in the seed uses it.
 enum SeatClass {
   shovan
   schair
   snigdha
   ac
+  acs
 
   @@map("seat_class")
 }
@@ -119,12 +122,27 @@ model Coach {
   rows        Int
   seatsPerRow Int       @map("seats_per_row")
 
-  train Train  @relation(fields: [trainId], references: [id], onDelete: Cascade)
-  seats Seat[]
+  train  Train   @relation(fields: [trainId], references: [id], onDelete: Cascade)
+  seats  Seat[]
+  cabins Cabin[]
 
   @@unique([trainId, code])
   @@unique([trainId, position])
   @@map("coaches")
+}
+
+// A cabin of an AC coach. Each sofa seats 3 people by day (rows are counted in sofas, 3 seats each)
+// and is 2 berths by night (the sofa and an upper berth above it). Cabins have 1 or 2 sofas. Cabins are only stored for AC coaches.
+model Cabin {
+  id      String @id @default(uuid(7))
+  coachId String @map("coach_id")
+  number  Int // 1 is the cabin nearest the front of the coach
+  sofas   Int // 1 or 2
+
+  coach Coach @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  @@unique([coachId, number])
+  @@map("cabins")
 }
 
 // Seats are stored once per coach, not once per day. Whether a seat is free on a date
