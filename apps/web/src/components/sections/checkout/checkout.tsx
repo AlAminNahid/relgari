@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckIcon, ClockIcon, ShieldCheckIcon } from "lucide-react";
+import { ClockIcon, LockIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { GatewayDialog } from "@/components/sections/checkout/gateway-dialog";
+import { MethodPicker } from "@/components/sections/checkout/method-picker";
 import { Button } from "@/components/ui/button";
-import {
-  METHOD_STYLE,
-  PAYMENT_METHODS,
-  type PaymentMethod,
-} from "@/config/payment";
+import { METHOD_STYLE, type PaymentMethod } from "@/config/payment";
 import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -36,7 +33,6 @@ export function Checkout() {
   const [paid, setPaid] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
-  // Opening the checkout keeps the held seats for a few more minutes.
   useEffect(() => {
     let active = true;
     startCheckout()
@@ -181,58 +177,31 @@ export function Checkout() {
           <h2 className="text-[18px] font-bold text-brand-deep">
             {t("payWith")}
           </h2>
-          <div
-            role="radiogroup"
-            aria-label={t("payWith")}
-            className="mt-3 grid grid-cols-2 gap-2.5"
-          >
-            {PAYMENT_METHODS.map((key) => {
-              const s = METHOD_STYLE[key];
-              const active = key === method;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => setMethod(key)}
-                  className={cn(
-                    "relative flex h-14 items-center justify-center rounded-xl border-[1.5px] text-[17px] font-extrabold outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "border-transparent shadow-md ring-2 ring-offset-2"
-                      : "bg-background hover:border-foreground/40",
-                  )}
-                  style={
-                    active
-                      ? ({
-                          background: s.bg,
-                          color: s.text,
-                          "--tw-ring-color": s.bg,
-                        } as React.CSSProperties)
-                      : { color: s.bg === "#f6921e" ? "#c46a00" : s.bg }
-                  }
-                >
-                  {s.name}
-                  {active && (
-                    <CheckIcon className="absolute right-2 top-2 size-4" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <MethodPicker value={method} onChange={setMethod} />
 
-          <Button
-            onClick={() => setGateOpen(true)}
-            disabled={paid}
-            className="mt-5 h-12 w-full rounded-xl text-[16px] font-bold"
-            style={{ background: style.bg, color: style.text }}
-          >
-            {t("pay", { amount: format.number(data.total) })}
-          </Button>
-          <p className="mt-3 flex items-start gap-2 text-[13px] text-muted-foreground">
-            <ShieldCheckIcon className="mt-0.5 size-4 shrink-0" />
-            {t("demoNote")}
-          </p>
+          <div className="mt-5 border-t pt-4">
+            <div className="flex items-baseline justify-between text-[14.5px]">
+              <span className="text-muted-foreground">
+                {t("paying", { method: style.name })}
+              </span>
+              <b className="text-[22px] font-extrabold tabular-nums text-brand-deep">
+                ৳{format.number(data.total)}
+              </b>
+            </div>
+            <Button
+              onClick={() => setGateOpen(true)}
+              disabled={paid}
+              className="mt-3 h-12 w-full rounded-xl text-[16px] font-bold shadow-sm"
+              style={{ background: style.bg, color: style.text }}
+            >
+              <LockIcon className="size-4" />
+              {t("pay", { amount: format.number(data.total) })}
+            </Button>
+            <p className="mt-3 flex items-start gap-2 text-[13px] text-muted-foreground">
+              <LockIcon className="mt-0.5 size-3.5 shrink-0" />
+              {t("demoNote")}
+            </p>
+          </div>
         </section>
       </div>
 

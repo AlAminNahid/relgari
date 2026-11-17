@@ -147,12 +147,19 @@
     "expiredBody": "The time ran out before the payment. Choose your seats again.",
     "errorTitle": "Checkout could not be loaded",
     "errorBody": "Try again in a moment.",
-    "backToSeats": "Search trains"
+    "backToSeats": "Search trains",
+    "mobileBanking": "Mobile banking",
+    "cards": "Debit or credit card",
+    "paying": "Paying with {method}",
+    "methodDesc": {
+      "bkash": "Mobile wallet",
+      "nagad": "Mobile wallet",
+      "rocket": "Mobile wallet",
+      "card": "Visa, Mastercard"
+    }
   },
   "gateway": {
     "demo": "Demo",
-    "banner": "This is a pretend payment screen. Use the test values shown.",
-    "merchant": "Paying Relgari",
     "numberTitle": "Enter your {method} account number",
     "numberLabel": "Account number",
     "otpTitle": "Enter the code sent to {number}",
@@ -189,7 +196,24 @@
       "UNAUTHENTICATED": "Please log in again.",
       "NETWORK": "Could not reach the server. Check your connection.",
       "INTERNAL": "Something went wrong. Try again."
-    }
+    },
+    "title": "{method} payment",
+    "secure": "Secure payment",
+    "merchantLabel": "Paying to",
+    "amountLabel": "Amount",
+    "steps": "Payment steps",
+    "stepAccount": "Account",
+    "stepCode": "Code",
+    "stepPin": "PIN",
+    "fill": "Use demo value",
+    "stages": [
+      "Contacting {method}…",
+      "Verifying your details…",
+      "Confirming your payment…"
+    ],
+    "successTitle": "Payment successful",
+    "successNote": "Taking you to your e-ticket…",
+    "bank": "your bank"
   },
   "ticketPage": {
     "title": "Your e-ticket",
