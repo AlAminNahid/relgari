@@ -1,0 +1,50 @@
+import { z } from 'zod';
+import type { SeatClass } from '../../generated/prisma/client.js';
+import { isDateString } from '../../shared/utils/bd-time.js';
+import type { StationDto } from '../../stations/dto/station.dto.js';
+
+const stationCode = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z]{2,6}$/);
+
+export const trainSearchSchema = z
+  .object({
+    from: stationCode,
+    to: stationCode,
+    date: z.string().refine(isDateString),
+  })
+  .refine((query) => query.from !== query.to);
+
+export type TrainSearchQuery = z.infer<typeof trainSearchSchema>;
+
+export interface ClassAvailabilityDto {
+  seatClass: SeatClass;
+  fare: number;
+  quota: number;
+  released: number;
+  available: number;
+  nextReleaseAt: string | null;
+  nextReleaseSeats: number;
+}
+
+export interface TrainResultDto {
+  number: number;
+  nameEn: string;
+  nameBn: string;
+  departure: string;
+  arrival: string;
+  arrivalDayOffset: number;
+  durationMinutes: number;
+  departed: boolean;
+  classes: ClassAvailabilityDto[];
+}
+
+export interface TrainSearchDto {
+  from: StationDto;
+  to: StationDto;
+  date: string;
+  routeExists: boolean;
+  trains: TrainResultDto[];
+}

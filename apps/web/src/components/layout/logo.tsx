@@ -1,8 +1,8 @@
+import Link from "next/link";
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-// The Relgari mark: a train coach, seen head-on, on the red disc of the flag. Keep it in step with src/app/icon.svg.
 export function TrainIcon({ className }: { className?: string }) {
   const id = useId();
   return (
@@ -49,8 +49,8 @@ export function Logo({
 }) {
   const t = useTranslations("brand");
   return (
-    <a
-      href="#top"
+    <Link
+      href="/#top"
       aria-label={t("home")}
       className={cn(
         "flex items-center gap-2.5 text-[22px] font-extrabold tracking-tight",
@@ -82,6 +82,6 @@ export function Logo({
           </small>
         ) : null}
       </span>
-    </a>
+    </Link>
   );
 }

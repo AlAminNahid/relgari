@@ -8,6 +8,7 @@ import {
   MapPinIcon,
   TrainFrontIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { bn as bnLocale, enUS } from "react-day-picker/locale";
 import { Button } from "@/components/ui/button";
@@ -26,15 +27,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StationInput } from "@/components/sections/landing/hero/station-input";
-import { CLASS_KEYS, MAX_DAYS_AHEAD, ROUTE_EVENT } from "@/config/site";
+import {
+  CLASS_KEYS,
+  MAX_DAYS_AHEAD,
+  ROUTE_EVENT,
+  type ClassKey,
+} from "@/config/site";
 import { useToday } from "@/hooks/use-today";
+import { fromDateString, toDateString } from "@/lib/dates";
 import { findStation, stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import type { Station } from "@/types/api";
 
-type Result =
-  | { kind: "both" | "same" | "unknown" }
-  | { kind: "ok"; from: string; to: string; date: Date; cls: string };
+type Problem = "both" | "same" | "unknown";
+export interface SearchValues {
+  from: Station;
+  to: Station;
+  date: string;
+  cls: ClassKey;
+}
 
 function addDays(d: Date, n: number) {
   const x = new Date(d);
@@ -42,28 +53,40 @@ function addDays(d: Date, n: number) {
   return x;
 }
 
-export function SearchBar({ stations }: { stations: Station[] }) {
+export function SearchBar({
+  stations,
+  initial,
+  compact = false,
+}: {
+  stations: Station[];
+  initial?: SearchValues;
+  compact?: boolean;
+}) {
   const t = useTranslations("search");
   const tc = useTranslations("classNames");
   const locale = useLocale();
   const format = useFormatter();
+  const router = useRouter();
 
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [cls, setCls] = useState<string>("shovan");
+  const [from, setFrom] = useState(
+    initial ? stationName(initial.from, locale) : "",
+  );
+  const [to, setTo] = useState(initial ? stationName(initial.to, locale) : "");
+  const [cls, setCls] = useState<string>(initial?.cls ?? "shovan");
   const today = useToday();
-  const [picked, setDate] = useState<Date>();
+  const [picked, setDate] = useState<Date | undefined>(
+    initial ? fromDateString(initial.date) : undefined,
+  );
   const date = picked ?? today;
   const [open, setOpen] = useState(false);
-  const [result, setResult] = useState<Result | null>(null);
+  const [problem, setProblem] = useState<Problem | null>(null);
 
-  // The departure board fills in a route when "Book" is pressed.
   useEffect(() => {
     const onRoute = (e: Event) => {
       const detail = (e as CustomEvent<{ from: string; to: string }>).detail;
       setFrom(detail.from);
       setTo(detail.to);
-      setResult(null);
+      setProblem(null);
     };
     window.addEventListener(ROUTE_EVENT, onRoute);
     return () => window.removeEventListener(ROUTE_EVENT, onRoute);
@@ -71,8 +94,6 @@ export function SearchBar({ stations }: { stations: Station[] }) {
 
   const shortDate = (d: Date) =>
     format.dateTime(d, { day: "numeric", month: "short", year: "numeric" });
-  const longDate = (d: Date) =>
-    format.dateTime(d, { day: "numeric", month: "long", year: "numeric" });
 
   function swap() {
     setFrom(to);
@@ -83,56 +104,54 @@ export function SearchBar({ stations }: { stations: Station[] }) {
     e.preventDefault();
     const f = from.trim();
     const tt = to.trim();
-    if (!f || !tt) return setResult({ kind: "both" });
-    // With a station list, both names must be real stations. Without one (API unreachable) typed names pass.
+    if (!f || !tt) return setProblem("both");
     const fromStation = findStation(stations, f);
     const toStation = findStation(stations, tt);
-    if (stations.length > 0 && (!fromStation || !toStation))
-      return setResult({ kind: "unknown" });
-    const same = fromStation
-      ? fromStation.code === toStation?.code
-      : f.toLowerCase() === tt.toLowerCase();
-    if (same) return setResult({ kind: "same" });
-    setResult({
-      kind: "ok",
-      from: fromStation ? stationName(fromStation, locale) : f,
-      to: toStation ? stationName(toStation, locale) : tt,
-      date: date ?? new Date(),
-      cls,
+    if (!fromStation || !toStation) return setProblem("unknown");
+    if (fromStation.code === toStation.code) return setProblem("same");
+    setProblem(null);
+    const query = new URLSearchParams({
+      from: fromStation.code,
+      to: toStation.code,
+      date: toDateString(date ?? new Date()),
+      class: cls,
     });
+    router.push(`/search?${query}`);
   }
 
   let message = "";
-  if (result?.kind === "both") message = t("enterBoth");
-  else if (result?.kind === "unknown") message = t("pickStation");
-  else if (result?.kind === "same") message = t("enterDifferent");
-  else if (result?.kind === "ok") {
-    message = t("searching", {
-      from: result.from,
-      to: result.to,
-      date: longDate(result.date),
-      cls: tc(result.cls),
-    });
-  }
+  if (problem === "both") message = t("enterBoth");
+  else if (problem === "unknown") message = t("pickStation");
+  else if (problem === "same") message = t("enterDifferent");
 
   return (
     <form
       id="search"
       onSubmit={onSubmit}
       noValidate
-      className="scroll-mt-24 rounded-[18px] p-5 text-white shadow-[0_26px_50px_-24px_rgba(6,56,43,.75)] sm:p-6"
+      className={cn(
+        "scroll-mt-24 rounded-[18px] text-white shadow-[0_26px_50px_-24px_rgba(6,56,43,.75)]",
+        compact ? "p-4 sm:p-5" : "p-5 sm:p-6",
+      )}
       style={{
         background:
           "repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 12px), linear-gradient(135deg,var(--primary),var(--brand-deep) 70%)",
       }}
     >
-      <h2 className="mb-4 flex items-center gap-2.5 text-[22px] font-extrabold leading-tight tracking-tight">
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/12">
-          <TrainFrontIcon className="size-5" />
-        </span>
-        {t("title")}
-      </h2>
-      <div className="grid grid-cols-1 items-end gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,.9fr)_auto]">
+      {!compact && (
+        <h2 className="mb-4 flex items-center gap-2.5 text-[22px] font-extrabold leading-tight tracking-tight">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/12">
+            <TrainFrontIcon className="size-5" />
+          </span>
+          {t("title")}
+        </h2>
+      )}
+      <div
+        className={cn(
+          "grid items-end gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,.9fr)_auto]",
+          compact ? "grid-cols-2" : "grid-cols-1",
+        )}
+      >
         <Field label={t("from")} htmlFor="from-in">
           <StationInput
             id="from-in"
@@ -151,7 +170,10 @@ export function SearchBar({ stations }: { stations: Station[] }) {
           size="icon"
           onClick={swap}
           aria-label={t("swap")}
-          className="mb-[9px] size-[34px] justify-self-center rounded-full border-white/25 bg-white/12 text-white hover:bg-white hover:text-primary"
+          className={cn(
+            "mb-[9px] size-[34px] justify-self-center rounded-full border-white/25 bg-white/12 text-white hover:bg-white hover:text-primary",
+            compact && "hidden sm:inline-flex",
+          )}
         >
           <ArrowLeftRightIcon className="rotate-90 sm:rotate-0" />
         </Button>
@@ -240,7 +262,10 @@ export function SearchBar({ stations }: { stations: Station[] }) {
 
         <Button
           type="submit"
-          className="h-[52px] rounded-xl bg-brand-red px-7 text-[16.5px] font-bold text-white shadow-[0_10px_22px_-8px_rgba(226,38,59,.9)] hover:bg-brand-red/90 sm:col-span-3 lg:col-span-1"
+          className={cn(
+            "h-[52px] rounded-xl bg-brand-red px-7 text-[16.5px] font-bold text-white shadow-[0_10px_22px_-8px_rgba(226,38,59,.9)] hover:bg-brand-red/90 sm:col-span-3 lg:col-span-1",
+            compact && "col-span-2",
+          )}
         >
           {t("submit")}
         </Button>
@@ -248,11 +273,7 @@ export function SearchBar({ stations }: { stations: Station[] }) {
       <p
         role="status"
         aria-live="polite"
-        className={cn(
-          "text-sm",
-          message && "mt-3",
-          result?.kind === "ok" ? "text-[#9fe0c4]" : "text-[#ffb3bc]",
-        )}
+        className={cn("text-sm text-[#ffb3bc]", message && "mt-3")}
       >
         {message}
       </p>

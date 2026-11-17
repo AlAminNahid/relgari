@@ -25,15 +25,18 @@ apps/web/
     │   └── globals.css    Theme colors
     ├── components/
     │   ├── ui/            shadcn/ui components (Button, Input, Select...)
-    │   ├── layout/        Navbar, Footer, Logo, language switch
+    │   ├── layout/        Navbar, account menu, Footer, Logo, language switch
     │   └── sections/      Page sections, one folder per feature
     │       ├── landing/   Landing page. Single-file sections sit here; a section with
     │       │              several files gets its own folder (hero/, departure-board/)
-    │       └── auth/      Login and registration popup
+    │       ├── auth/      Login and registration popup
+    │       └── search/    Search results: the train card and the row of dates
     ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
     │                      auth.server.ts (who is signed in, used by the server),
-    │                      stations.server.ts (the station list for the search form)
-    ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station), i18n/, utils.ts
+    │                      stations.server.ts (the station list for the search form),
+    │                      trains.server.ts (the train search)
+    ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station),
+    │                      dates.ts (journey dates as YYYY-MM-DD in Bangladesh time), i18n/, utils.ts
     ├── hooks/             Custom React hooks
     ├── types/             TypeScript types
     └── config/site.ts     Site-wide settings
@@ -47,7 +50,8 @@ Each feature has its own folder with the same pieces: `controllers/` (the routes
 apps/api/
 ├── prisma/                schema.prisma and the migrations (database changes, one per feature)
 │   └── seed/              Railway data: stations.json and trains.json (the real stations, stops, times and off days),
-│                          data.ts (reads them and gives each train its coaches) and seed.ts (loads it all)
+│                          data.ts (reads them, gives each train its coaches and shares its seats between stations)
+│                          and seed.ts (loads it all)
 └── src/
     ├── auth/              Login, registration, logout, current user
     │   ├── controllers/   auth.controller.ts (the /auth routes)
@@ -66,10 +70,13 @@ apps/api/
     │   ├── services/      stations.service.ts (lists every station)
     │   ├── dto/           station.dto.ts (the station the website sees)
     │   └── stations.module.ts
-    ├── trains/            Trains, their stops, coaches and seats (no routes yet: search comes next)
-    │   ├── services/      trains.service.ts (one train with its route and coaches),
-    │   │                  fare.service.ts (works out a fare from distance and class)
-    │   ├── dto/           train-detail.dto.ts (what a train is loaded with)
+    ├── trains/            Trains, their stops, coaches and seats, and the train search
+    │   ├── controllers/   trains.controller.ts (the /trains/search route)
+    │   ├── services/      train-search.service.ts (which trains run between two stations on a date),
+    │   │                  release.service.ts (how many seats are on sale yet, and when more open),
+    │   │                  fare.service.ts (works out a fare from distance and class),
+    │   │                  trains.service.ts (one train with its route and coaches)
+    │   ├── dto/           train-search.dto.ts (the search input and result), train-detail.dto.ts
     │   └── trains.module.ts
     ├── prisma/            Database connection
     ├── config/env.ts      Checks the .env settings when the server starts
@@ -127,7 +134,8 @@ cd ../web && npm install
 Where the data comes from:
 
 - **Real:** train numbers, stops, arrival and departure times and weekly off days, as published by the Bangladesh Railway e-ticket service in November 2026. They live in `apps/api/prisma/seed/stations.json` and `trains.json`. Timetables change, so treat them as a snapshot.
-- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate) and coaches (every train gets the same set, plus an AC coach on overnight trains).
+- **Estimated:** station codes (built from the names), distances (worked out from running times, so fares are approximate), coaches (every train gets the same set, plus an AC coach on overnight trains) and each station's share of a train's seats (see below).
+- **Corrected:** eight trains (771, 772, 774, 784, 799, 800, 809, 810) had a time in the source that ran a little backwards. Those times were moved to the neighbouring stop's time, and 810 was put back in running order starting from Burimari.
 - **Written by hand:** the Bangla station and train names.
 
 ## Running the apps
@@ -168,6 +176,17 @@ The website never calls the API directly. It calls `/api/...` on its own address
 | `POST /auth/logout` | End the session |
 | `GET /auth/me` | The signed-in user, including their own NID |
 | `GET /stations` | Every station (code, English name, Bangla name). Public |
+| `GET /trains/search?from=DAC&to=CGP&date=2026-11-20` | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public |
+
+### How tickets go on sale
+
+Relgari does not put every ticket on sale at once. Three rules decide what a search shows:
+
+- **Station shares.** A train's seats are shared between the stations people board at (the `station_quotas` table). The first station gets half; the rest is split so a major station gets three times what a small one gets. These shares are estimates set in `apps/api/prisma/seed/data.ts`.
+- **Batches.** Booking opens 10 days before the journey, and a new batch opens every 2 days at 5:00 PM Bangladesh time, so the last batch opens 2 days before. Each class has its own percentages: Shovan and S_Chair open 30, 25, 20, 15 and 10 percent; Snigdha and AC Cabin open 20 percent each time. A small share is spread in whole seats, with at least one seat kept for the last batch.
+- **Settings.** The window, the gap, the time and the percentages are in `apps/api/src/shared/constants/release.constants.ts`. The website's 10-day limit is `MAX_DAYS_AHEAD` in `apps/web/src/config/site.ts`.
+
+Nothing can be booked yet, so "seats available" is simply the seats released so far. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.
 
 ## Build order
 
@@ -175,7 +194,7 @@ The project is built one feature at a time. Database tables are added only when 
 
 1. Landing page and login or registration (users and sessions tables) ✅
 2. Stations, trains, coaches and seats (stations, trains, train_stops, coaches and seats tables) ✅
-3. Train search
+3. Train search (station_quotas table) ✅
 4. Seat map and seat holds
 5. Fake payment and QR tickets
 6. My tickets, cancel and refund

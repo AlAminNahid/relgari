@@ -1,6 +1,13 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../src/generated/prisma/client.js';
-import { COACH_LAYOUT, STATIONS, TRAINS, coachesFor } from './data.js';
+import {
+  COACH_LAYOUT,
+  STATIONS,
+  TRAINS,
+  coachesFor,
+  quotasFor,
+  type SeatClassKey,
+} from './data.js';
 
 try {
   process.loadEnvFile('.env');
@@ -32,6 +39,7 @@ async function main() {
   }
 
   let seatCount = 0;
+  let quotaCount = 0;
   for (const train of TRAINS) {
     const details = {
       nameEn: train.nameEn,
@@ -91,6 +99,31 @@ async function main() {
     await prisma.coach.deleteMany({
       where: { trainId, code: { notIn: coaches.map((c) => c.code) } },
     });
+
+    const classSeats = new Map<SeatClassKey, number>();
+    for (const coach of coaches) {
+      const layout = COACH_LAYOUT[coach.seatClass];
+      classSeats.set(
+        coach.seatClass,
+        (classSeats.get(coach.seatClass) ?? 0) +
+          layout.rows * layout.seatsPerRow,
+      );
+    }
+    const quotaRows = [...classSeats].flatMap(([seatClass, seats]) =>
+      [...quotasFor(train, seats)]
+        .filter(([, share]) => share > 0)
+        .map(([code, share]) => ({
+          trainId,
+          stationId: stationIds.get(code)!,
+          seatClass,
+          seats: share,
+        })),
+    );
+    await prisma.$transaction([
+      prisma.stationQuota.deleteMany({ where: { trainId } }),
+      prisma.stationQuota.createMany({ data: quotaRows }),
+    ]);
+    quotaCount += quotaRows.length;
   }
 
   await prisma.train.deleteMany({
@@ -101,7 +134,7 @@ async function main() {
   });
 
   console.log(
-    `Seeded ${STATIONS.length} stations, ${TRAINS.length} trains and ${seatCount} seats.`,
+    `Seeded ${STATIONS.length} stations, ${TRAINS.length} trains, ${seatCount} seats and ${quotaCount} station quotas.`,
   );
 }
 

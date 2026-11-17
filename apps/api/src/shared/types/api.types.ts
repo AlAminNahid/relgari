@@ -6,6 +6,8 @@ export type ApiErrorCode =
   | 'NID_TAKEN'
   | 'INVALID_CREDENTIALS'
   | 'UNAUTHENTICATED'
+  | 'STATION_NOT_FOUND'
+  | 'DATE_OUT_OF_RANGE'
   | 'TOO_MANY_REQUESTS'
   | 'INTERNAL';
 

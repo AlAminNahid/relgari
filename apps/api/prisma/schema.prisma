@@ -1,6 +1,7 @@
 // Relgari database. Tables are added one feature at a time.
 // Feature 1 (login and registration): users and sessions.
 // Feature 2 (the railway itself): stations, trains, train stops, coaches and seats.
+// Feature 3 (ticket search): how many seats of a train each boarding station may sell.
 
 generator client {
   provider            = "prisma-client"
@@ -65,7 +66,8 @@ model Station {
   nameEn String @map("name_en")
   nameBn String @map("name_bn")
 
-  stops TrainStop[]
+  stops  TrainStop[]
+  quotas StationQuota[]
 
   @@map("stations")
 }
@@ -80,6 +82,7 @@ model Train {
 
   stops   TrainStop[]
   coaches Coach[]
+  quotas  StationQuota[]
 
   @@map("trains")
 }
@@ -135,4 +138,22 @@ model Seat {
 
   @@unique([coachId, number])
   @@map("seats")
+}
+
+// A train's seats are shared out between the stations people board at: a busy station gets more.
+// One row says how many seats of one class a station may sell on that train, for any journey date.
+// For each train and class the rows add up to the seats that class has on the train.
+model StationQuota {
+  id        String    @id @default(uuid(7))
+  trainId   String    @map("train_id")
+  stationId String    @map("station_id")
+  seatClass SeatClass @map("seat_class")
+  seats     Int
+
+  train   Train   @relation(fields: [trainId], references: [id], onDelete: Cascade)
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([trainId, stationId, seatClass])
+  @@index([stationId])
+  @@map("station_quotas")
 }

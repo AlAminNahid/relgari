@@ -1655,7 +1655,7 @@
       { "station": "PRG", "arrive": "17:58", "depart": "18:00", "km": 399 },
       { "station": "KNN", "arrive": "18:16", "depart": "18:36", "km": 413 },
       { "station": "KRG", "arrive": "19:20", "depart": "19:20", "km": 451 },
-      { "station": "RNP", "arrive": "19:00+1", "km": 508 }
+      { "station": "RNP", "arrive": "19:20", "km": 508 }
     ]
   },
   {
@@ -1666,18 +1666,18 @@
     "stops": [
       { "station": "RNP", "depart": "20:00", "km": 0 },
       { "station": "KNN", "arrive": "20:20", "depart": "20:40", "km": 19 },
-      { "station": "KRG", "arrive": "19:50+1", "depart": "19:30+2", "km": 57 },
-      { "station": "PRG", "arrive": "20:56+2", "depart": "20:58+2", "km": 109 },
-      { "station": "BMN", "arrive": "21:15+2", "depart": "21:18+2", "km": 124 },
-      { "station": "GBN", "arrive": "21:47+2", "depart": "21:52+2", "km": 152 },
-      { "station": "BNR", "arrive": "22:15+2", "depart": "22:25+2", "km": 173 },
-      { "station": "SNL", "arrive": "22:42+2", "depart": "22:44+2", "km": 188 },
-      { "station": "BGR", "arrive": "23:15+2", "depart": "23:20+2", "km": 216 },
-      { "station": "TLR", "arrive": "23:40+2", "depart": "23:42+2", "km": 235 },
-      { "station": "SNT", "arrive": "00:10+3", "depart": "00:15+3", "km": 257 },
-      { "station": "NTR", "arrive": "01:25+3", "depart": "01:28+3", "km": 295 },
-      { "station": "IBR", "arrive": "03:34+3", "depart": "03:36+3", "km": 395 },
-      { "station": "DAC", "arrive": "06:00+3", "km": 508 }
+      { "station": "KRG", "arrive": "20:40", "depart": "20:40", "km": 57 },
+      { "station": "PRG", "arrive": "20:56", "depart": "20:58", "km": 109 },
+      { "station": "BMN", "arrive": "21:15", "depart": "21:18", "km": 124 },
+      { "station": "GBN", "arrive": "21:47", "depart": "21:52", "km": 152 },
+      { "station": "BNR", "arrive": "22:15", "depart": "22:25", "km": 173 },
+      { "station": "SNL", "arrive": "22:42", "depart": "22:44", "km": 188 },
+      { "station": "BGR", "arrive": "23:15", "depart": "23:20", "km": 216 },
+      { "station": "TLR", "arrive": "23:40", "depart": "23:42", "km": 235 },
+      { "station": "SNT", "arrive": "00:10+1", "depart": "00:15+1", "km": 257 },
+      { "station": "NTR", "arrive": "01:25+1", "depart": "01:28+1", "km": 295 },
+      { "station": "IBR", "arrive": "03:34+1", "depart": "03:36+1", "km": 395 },
+      { "station": "DAC", "arrive": "06:00+1", "km": 508 }
     ]
   },
   {
@@ -1710,14 +1710,14 @@
       { "station": "KLR", "arrive": "07:23", "depart": "07:26", "km": 60 },
       { "station": "SHM", "arrive": "07:50", "depart": "07:52", "km": 82 },
       { "station": "SRM", "arrive": "08:17", "depart": "08:20", "km": 106 },
-      { "station": "SHS", "arrive": "08:57", "depart": "08:20+1", "km": 141 },
-      { "station": "HRS", "arrive": "09:52+1", "depart": "09:54+1", "km": 175 },
-      { "station": "AZM", "arrive": "10:20+1", "depart": "10:22+1", "km": 194 },
-      { "station": "BRA", "arrive": "10:48+1", "depart": "10:51+1", "km": 214 },
-      { "station": "BHA", "arrive": "11:10+1", "depart": "11:13+1", "km": 232 },
-      { "station": "NRS", "arrive": "11:43+1", "depart": "11:45+1", "km": 254 },
-      { "station": "BMR", "arrive": "12:24+1", "depart": "12:24+1", "km": 288 },
-      { "station": "DAC", "arrive": "12:55+1", "km": 309 }
+      { "station": "SHS", "arrive": "08:57", "depart": "08:57", "km": 141 },
+      { "station": "HRS", "arrive": "09:52", "depart": "09:54", "km": 175 },
+      { "station": "AZM", "arrive": "10:20", "depart": "10:22", "km": 194 },
+      { "station": "BRA", "arrive": "10:48", "depart": "10:51", "km": 214 },
+      { "station": "BHA", "arrive": "11:10", "depart": "11:13", "km": 232 },
+      { "station": "NRS", "arrive": "11:43", "depart": "11:45", "km": 254 },
+      { "station": "BMR", "arrive": "12:24", "depart": "12:24", "km": 288 },
+      { "station": "DAC", "arrive": "12:55", "km": 309 }
     ]
   },
   {
@@ -1922,17 +1922,17 @@
       { "station": "PNG", "arrive": "18:58", "depart": "19:00", "km": 134 },
       { "station": "KLK", "arrive": "19:10", "depart": "19:12", "km": 143 },
       { "station": "NLG", "arrive": "19:40", "depart": "19:40", "km": 170 },
-      { "station": "BHR", "arrive": "19:26+1", "depart": "19:28+1", "km": 209 },
-      { "station": "MDL", "arrive": "19:51+1", "depart": "19:54+1", "km": 231 },
-      { "station": "BLM", "arrive": "20:14+1", "depart": "20:16+1", "km": 249 },
-      { "station": "KSH", "arrive": "20:40+1", "depart": "20:43+1", "km": 270 },
-      { "station": "CHA", "arrive": "20:52+1", "depart": "20:54+1", "km": 279 },
-      { "station": "CHG", "arrive": "21:06+1", "depart": "21:08+1", "km": 290 },
-      { "station": "CHL", "arrive": "21:19+1", "depart": "21:21+1", "km": 300 },
-      { "station": "GPL", "arrive": "21:33+1", "depart": "21:38+1", "km": 311 },
-      { "station": "BRS", "arrive": "21:49+1", "depart": "21:51+1", "km": 320 },
-      { "station": "KHT", "arrive": "21:49+2", "depart": "21:49+2", "km": 348 },
-      { "station": "GBR", "arrive": "22:10+2", "km": 368 }
+      { "station": "BHR", "arrive": "19:40", "depart": "19:40", "km": 209 },
+      { "station": "MDL", "arrive": "19:51", "depart": "19:54", "km": 231 },
+      { "station": "BLM", "arrive": "20:14", "depart": "20:16", "km": 249 },
+      { "station": "KSH", "arrive": "20:40", "depart": "20:43", "km": 270 },
+      { "station": "CHA", "arrive": "20:52", "depart": "20:54", "km": 279 },
+      { "station": "CHG", "arrive": "21:06", "depart": "21:08", "km": 290 },
+      { "station": "CHL", "arrive": "21:19", "depart": "21:21", "km": 300 },
+      { "station": "GPL", "arrive": "21:33", "depart": "21:38", "km": 311 },
+      { "station": "BRS", "arrive": "21:49", "depart": "21:49", "km": 320 },
+      { "station": "KHT", "arrive": "21:49", "depart": "21:49", "km": 348 },
+      { "station": "GBR", "arrive": "22:10", "km": 368 }
     ]
   },
   {
@@ -2190,15 +2190,15 @@
       { "station": "GFR", "arrive": "12:14", "depart": "12:17", "km": 113 },
       { "station": "MYM", "arrive": "13:05", "depart": "13:10", "km": 156 },
       { "station": "BDY", "arrive": "13:32", "depart": "13:34", "km": 177 },
-      { "station": "NRN", "arrive": "13:25+1", "depart": "13:25+1", "km": 200 },
-      { "station": "NND", "arrive": "14:08+1", "depart": "14:12+1", "km": 229 },
-      { "station": "JMN", "arrive": "14:25+1", "depart": "14:28+1", "km": 241 },
-      { "station": "JFR", "arrive": "14:59+1", "depart": "14:59+1", "km": 270 },
-      { "station": "SRS", "arrive": "15:21+1", "depart": "15:24+1", "km": 289 },
-      { "station": "TRK", "arrive": "15:42+1", "depart": "15:45+1", "km": 303 },
-      { "station": "JGN", "arrive": "15:56+1", "depart": "15:56+1", "km": 313 },
-      { "station": "HMN", "arrive": "16:16+1", "depart": "16:16+1", "km": 331 },
-      { "station": "BHP", "arrive": "16:45+1", "km": 347 }
+      { "station": "NRN", "arrive": "13:34", "depart": "13:34", "km": 200 },
+      { "station": "NND", "arrive": "14:08", "depart": "14:12", "km": 229 },
+      { "station": "JMN", "arrive": "14:25", "depart": "14:28", "km": 241 },
+      { "station": "JFR", "arrive": "14:59", "depart": "14:59", "km": 270 },
+      { "station": "SRS", "arrive": "15:21", "depart": "15:24", "km": 289 },
+      { "station": "TRK", "arrive": "15:42", "depart": "15:45", "km": 303 },
+      { "station": "JGN", "arrive": "15:56", "depart": "15:56", "km": 313 },
+      { "station": "HMN", "arrive": "16:16", "depart": "16:16", "km": 331 },
+      { "station": "BHP", "arrive": "16:45", "km": 347 }
     ]
   },
   {
@@ -2214,13 +2214,13 @@
       { "station": "SRS", "arrive": "18:27", "depart": "18:30", "km": 58 },
       { "station": "JFR", "arrive": "18:50", "depart": "18:50", "km": 77 },
       { "station": "JMN", "arrive": "19:22", "depart": "19:25", "km": 106 },
-      { "station": "NND", "arrive": "19:38", "depart": "19:40", "km": 118 },
-      { "station": "NRN", "arrive": "19:38+1", "depart": "19:38+1", "km": 147 },
-      { "station": "BDY", "arrive": "20:11+1", "depart": "20:13+1", "km": 170 },
-      { "station": "MYM", "arrive": "20:35+1", "depart": "20:40+1", "km": 191 },
-      { "station": "GFR", "arrive": "21:37+1", "depart": "21:39+1", "km": 234 },
-      { "station": "JYD", "arrive": "22:56+1", "depart": "22:58+1", "km": 304 },
-      { "station": "DAC", "arrive": "23:55+1", "km": 347 }
+      { "station": "NND", "arrive": "19:38", "depart": "19:38", "km": 118 },
+      { "station": "NRN", "arrive": "19:38", "depart": "19:38", "km": 147 },
+      { "station": "BDY", "arrive": "20:11", "depart": "20:13", "km": 170 },
+      { "station": "MYM", "arrive": "20:35", "depart": "20:40", "km": 191 },
+      { "station": "GFR", "arrive": "21:37", "depart": "21:39", "km": 234 },
+      { "station": "JYD", "arrive": "22:56", "depart": "22:58", "km": 304 },
+      { "station": "DAC", "arrive": "23:55", "km": 347 }
     ]
   },
   {
@@ -2434,13 +2434,13 @@
       { "station": "BNR", "arrive": "15:58", "depart": "16:03", "km": 334 },
       { "station": "GBN", "arrive": "16:28", "depart": "16:33", "km": 355 },
       { "station": "KNN", "arrive": "17:43", "depart": "17:46", "km": 412 },
-      { "station": "LLM", "arrive": "18:10", "depart": "19:00", "km": 434 },
-      { "station": "KNK", "arrive": "18:55+1", "depart": "18:57+1", "km": 462 },
-      { "station": "TSH", "arrive": "19:45+1", "depart": "19:47+1", "km": 469 },
-      { "station": "HTB", "arrive": "20:21+1", "depart": "20:37+1", "km": 492 },
-      { "station": "BRK", "arrive": "20:48+1", "depart": "20:51+1", "km": 502 },
-      { "station": "PTG", "arrive": "21:23+1", "depart": "21:28+1", "km": 525 },
-      { "station": "BUR", "arrive": "21:45+1", "km": 537 }
+      { "station": "LLM", "arrive": "18:10", "depart": "18:55", "km": 434 },
+      { "station": "KNK", "arrive": "18:55", "depart": "18:57", "km": 462 },
+      { "station": "TSH", "arrive": "19:45", "depart": "19:47", "km": 469 },
+      { "station": "HTB", "arrive": "20:21", "depart": "20:37", "km": 492 },
+      { "station": "BRK", "arrive": "20:48", "depart": "20:51", "km": 502 },
+      { "station": "PTG", "arrive": "21:23", "depart": "21:28", "km": 525 },
+      { "station": "BUR", "arrive": "21:45", "km": 537 }
     ]
   },
   {
@@ -2449,22 +2449,22 @@
     "nameBn": "বুড়িমারী এক্সপ্রেস",
     "offDay": 2,
     "stops": [
-      { "station": "LLM", "depart": "21:10", "km": 0 },
-      { "station": "BUR", "arrive": "18:00+1", "depart": "18:00+1", "km": 103 },
-      { "station": "PTG", "arrive": "18:15+1", "depart": "18:20+1", "km": 115 },
-      { "station": "BRK", "arrive": "18:47+1", "depart": "18:50+1", "km": 138 },
-      { "station": "HTB", "arrive": "19:02+1", "depart": "19:05+1", "km": 148 },
-      { "station": "TSH", "arrive": "19:33+1", "depart": "19:35+1", "km": 171 },
-      { "station": "KNK", "arrive": "22:43+1", "depart": "22:45+1", "km": 178 },
-      { "station": "KNN", "arrive": "21:33+2", "depart": "21:36+2", "km": 227 },
-      { "station": "GBN", "arrive": "22:42+2", "depart": "22:45+2", "km": 284 },
-      { "station": "BNR", "arrive": "23:07+2", "depart": "23:10+2", "km": 305 },
-      { "station": "MHM", "arrive": "23:22+2", "depart": "23:22+2", "km": 314 },
-      { "station": "SNL", "arrive": "23:31+2", "depart": "23:33+2", "km": 323 },
-      { "station": "BGR", "arrive": "00:03+3", "depart": "00:08+3", "km": 351 },
-      { "station": "SNT", "arrive": "01:00+3", "depart": "01:05+3", "km": 389 },
-      { "station": "NTR", "arrive": "02:03+3", "depart": "02:13+3", "km": 427 },
-      { "station": "DAC", "arrive": "06:30+3", "km": 640 }
+      { "station": "BUR", "depart": "18:00", "km": 0 },
+      { "station": "PTG", "arrive": "18:15", "depart": "18:20", "km": 12 },
+      { "station": "BRK", "arrive": "18:47", "depart": "18:50", "km": 35 },
+      { "station": "HTB", "arrive": "19:02", "depart": "19:05", "km": 45 },
+      { "station": "TSH", "arrive": "19:33", "depart": "19:35", "km": 68 },
+      { "station": "KNK", "arrive": "21:10", "depart": "21:10", "km": 75 },
+      { "station": "LLM", "arrive": "21:10", "depart": "21:10", "km": 103 },
+      { "station": "KNN", "arrive": "21:33", "depart": "21:36", "km": 125 },
+      { "station": "GBN", "arrive": "22:42", "depart": "22:45", "km": 182 },
+      { "station": "BNR", "arrive": "23:07", "depart": "23:10", "km": 203 },
+      { "station": "MHM", "arrive": "23:22", "depart": "23:22", "km": 212 },
+      { "station": "SNL", "arrive": "23:31", "depart": "23:33", "km": 221 },
+      { "station": "BGR", "arrive": "00:03+1", "depart": "00:08+1", "km": 249 },
+      { "station": "SNT", "arrive": "01:00+1", "depart": "01:05+1", "km": 287 },
+      { "station": "NTR", "arrive": "02:03+1", "depart": "02:13+1", "km": 325 },
+      { "station": "DAC", "arrive": "06:30+1", "km": 537 }
     ]
   },
   {

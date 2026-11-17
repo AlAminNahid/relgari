@@ -58,3 +58,72 @@ export function coachesFor(train: TrainSeed): CoachSeed[] {
   if (overnight) coaches.push({ code: 'JA', seatClass: 'ac' });
   return coaches;
 }
+
+export const QUOTA = {
+  originShare: 0.5,
+  majorWeight: 3,
+  otherWeight: 1,
+  majorStations: new Set([
+    'DAC',
+    'BMR',
+    'CGP',
+    'RAJ',
+    'KLN',
+    'SYL',
+    'CXB',
+    'MYM',
+    'CML',
+    'RNP',
+    'DNJ',
+    'BGR',
+    'JSR',
+    'ISH',
+    'SNT',
+    'PRB',
+    'BHA',
+    'AKH',
+    'LKS',
+    'FNN',
+    'JYD',
+    'NTR',
+    'TNG',
+    'BRA',
+    'SRM',
+    'KSJ',
+    'JMN',
+    'PNC',
+    'LLM',
+    'SDP',
+  ]),
+} as const;
+
+export function quotasFor(
+  train: TrainSeed,
+  seats: number,
+): Map<string, number> {
+  const boarding = train.stops.slice(0, -1).map((stop) => stop.station);
+  const [origin, ...rest] = boarding;
+  const weights = rest.map((code) =>
+    QUOTA.majorStations.has(code) ? QUOTA.majorWeight : QUOTA.otherWeight,
+  );
+  const weightTotal = weights.reduce((sum, w) => sum + w, 0);
+  const originSeats =
+    rest.length === 0 ? seats : Math.round(seats * QUOTA.originShare);
+  const left = seats - originSeats;
+
+  const exact = weights.map((w) => (left * w) / weightTotal);
+  const whole = exact.map(Math.floor);
+  let spare = left - whole.reduce((sum, n) => sum + n, 0);
+  const byLoss = exact
+    .map((value, index) => ({ index, loss: value - whole[index] }))
+    .sort((a, b) => b.loss - a.loss || a.index - b.index);
+  for (const { index } of byLoss) {
+    if (spare === 0) break;
+    whole[index] += 1;
+    spare -= 1;
+  }
+
+  const quotas = new Map<string, number>([[origin, originSeats]]);
+  rest.forEach((code, index) => quotas.set(code, whole[index]));
+  return quotas;
+}

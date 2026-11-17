@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/layout/logo";
 
@@ -16,27 +17,27 @@ export function Footer() {
           </div>
           <div>
             <h4 className={head}>{t("product")}</h4>
-            <a className={link} href="#routes">
+            <Link className={link} href="/#routes">
               {nav("routes")}
-            </a>
-            <a className={link} href="#seats">
+            </Link>
+            <Link className={link} href="/#seats">
               {nav("seats")}
-            </a>
+            </Link>
           </div>
           <div>
             <h4 className={head}>{t("help")}</h4>
-            <a className={link} href="#how">
+            <Link className={link} href="/#how">
               {nav("how")}
-            </a>
+            </Link>
           </div>
           <div>
             <h4 className={head}>{t("project")}</h4>
-            <a className={link} href="#top">
+            <Link className={link} href="/#top">
               {t("about")}
-            </a>
-            <a className={link} href="#top">
+            </Link>
+            <Link className={link} href="/#top">
               {t("contact")}
-            </a>
+            </Link>
           </div>
         </div>
         <p className="mt-8 border-t border-[#1e5442] pt-[18px] text-sm">

@@ -14,11 +14,10 @@
     "seats": "Seat picker",
     "how": "How it works",
     "login": "Log in",
-    "book": "Book a ticket",
     "menu": "Menu",
     "language": "Language",
     "logout": "Log out",
-    "greeting": "Hi, {name}"
+    "account": "Account: {name}"
   },
   "hero": {
     "badge": "New",
@@ -36,7 +35,7 @@
     "class": "Class",
     "submit": "Search trains",
     "placeholderFrom": "e.g. Dhaka",
-    "placeholderTo": "e.g. Chattogram",
+    "placeholderTo": "e.g. Sreemangal",
     "swap": "Swap from and to",
     "pickDate": "Choose a date",
     "prevMonth": "Previous month",
@@ -44,8 +43,28 @@
     "noStation": "No station found",
     "pickStation": "Choose both stations from the list.",
     "enterBoth": "Enter both stations.",
-    "enterDifferent": "Enter two different stations.",
-    "searching": "Searching {from} to {to} on {date} in {cls}. The results screen is the next page to design."
+    "enterDifferent": "Enter two different stations."
+  },
+  "results": {
+    "count": "{count, plural, one {# train} other {# trains}}",
+    "today": "Today",
+    "otherDates": "Other dates",
+    "trainNo": "Train no. {number}",
+    "duration": "{hours, number}h {minutes, number}m",
+    "nextDay": "+1 day",
+    "departed": "This train has already left this station.",
+    "seats": "{count, plural, one {# seat available} other {# seats available}}",
+    "notOpen": "Not open yet",
+    "opensAt": "Opens {when}",
+    "soldOutForNow": "Sold out for now",
+    "soldOut": "Sold out",
+    "moreAt": "{count, number} more on {when}",
+    "releaseNote": "Tickets open in batches: booking starts {days, number} days before the journey, and more seats are added every 2 days at 5:00 PM.",
+    "noTrainsDay": "No trains run on this route on {date}. Try another date.",
+    "noRoute": "No direct train runs from {from} to {to}.",
+    "dateOutOfRange": "Trains can be searched from today up to {days, number} days ahead, until {last}.",
+    "invalid": "Choose your stations and journey date to see the trains.",
+    "unavailable": "The train list could not be loaded. Try again in a moment."
   },
   "classNames": {
     "shovan": "Shovan",
@@ -57,9 +76,9 @@
     "title": "Relgari E-Ticket",
     "confirmed": "CONFIRMED",
     "fromName": "Dhaka",
-    "toName": "Chattogram",
-    "depart": "06:40",
-    "arrive": "12:05",
+    "toName": "Sreemangal",
+    "depart": "06:30",
+    "arrive": "10:32",
     "date": "Journey date",
     "dateValue": "Fri, 20 Nov 2026",
     "coach": "Coach",
@@ -84,10 +103,10 @@
     },
     "rows": [
       {
-        "name": "Subarna Express",
-        "route": "Dhaka → Chattogram",
-        "departs": "16:30",
-        "arrives": "21:25",
+        "name": "Jayantika Express",
+        "route": "Dhaka → Sreemangal",
+        "departs": "11:15",
+        "arrives": "16:01",
         "tags": ["snigdha", "schair"],
         "few": false
       },
