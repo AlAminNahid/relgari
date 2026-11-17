@@ -369,7 +369,8 @@
     "project": "Project",
     "about": "About",
     "contact": "Contact",
-    "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold."
+    "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold.",
+    "check": "Check a ticket"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -463,5 +464,36 @@
       "VALIDATION_FAILED": "Choose at least one seat.",
       "INTERNAL": "Something went wrong. Try again."
     }
+  },
+  "verify": {
+    "title": "Check a ticket",
+    "intro": "Enter a ticket's PNR, or scan its QR code, to see if it is valid.",
+    "pnr": "PNR",
+    "check": "Check",
+    "scan": "Scan a QR code",
+    "stopScan": "Stop scanning",
+    "cameraError": "The camera could not be opened. Type the PNR instead.",
+    "badPnr": "A PNR starts with RG and has 8 letters or digits, like RG4K7MX2.",
+    "status": {
+      "confirmed": "Valid ticket",
+      "partly_cancelled": "Valid for the seats below",
+      "cancelled": "Cancelled ticket",
+      "departed": "Train has left"
+    },
+    "note": {
+      "confirmed": "This ticket is good for the journey below.",
+      "partly_cancelled": "Some seats were cancelled. Only the seats listed are valid.",
+      "cancelled": "All seats on this ticket were cancelled. Do not let anyone board with it.",
+      "departed": "The train has already left, so this ticket can no longer be used."
+    },
+    "trainNo": "Train no. {number}",
+    "departs": "Departs {time}",
+    "passenger": "Passenger",
+    "seats": "Seats",
+    "demoNote": "Demo ticket for a concept project. Not valid for travel.",
+    "another": "Check another ticket",
+    "notFoundTitle": "No ticket found",
+    "notFoundBody": "There is no ticket with the PNR {pnr}.",
+    "tryAgain": "Try another PNR"
   }
 }

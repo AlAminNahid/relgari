@@ -33,7 +33,8 @@ apps/web/
     │       ├── search/    Search results: the train card and the row of dates
     │       ├── seats/     Seat page: the coach map, seat buttons and the panel of held seats
     │       ├── checkout/  Checkout page and the pretend payment popup (bKash, Nagad, Rocket, card)
-    │       └── ticket/    My tickets list, the e-ticket with its QR code, and the cancel popup
+    │       ├── ticket/    My tickets list, the e-ticket with its QR code, and the cancel popup
+    │       └── verify/    The page a QR code opens, and the check-a-ticket page (PNR box and camera scan)
     ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
     │                      auth.server.ts (who is signed in, used by the server),
     │                      stations.server.ts (the station list for the search form),
@@ -186,26 +187,27 @@ The website never calls the API directly. It calls `/api/...` on its own address
 
 ### API
 
-| Method and path                                                          | What it does                                                                                             |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `POST /auth/register`                                                    | Create an account and sign in                                                                            |
-| `POST /auth/login`                                                       | Sign in                                                                                                  |
-| `POST /auth/logout`                                                      | End the session                                                                                          |
-| `GET /auth/me`                                                           | The signed-in user, including their own NID                                                              |
-| `GET /stations`                                                          | Every station (code, English name, Bangla name). Public                                                  |
-| `GET /trains/:number/seats?from=DAC&to=CGP&date=2026-11-20&class=schair` | The seats of one class on a train, each free or taken. Public                                            |
-| `GET /holds/current`                                                     | The seats you are holding, with the seconds left on each. Login needed                                   |
-| `POST /holds`                                                            | Hold one seat. Login needed                                                                              |
-| `DELETE /holds/:id`                                                      | Release one of your held seats. Login needed                                                             |
-| `POST /bookings/checkout`                                                | Start the checkout: keeps your held seats for 10 more minutes and returns the order. Login needed        |
-| `POST /bookings`                                                         | Pay for the seats you hold with the pretend gateway and get the booking. Login needed                    |
-| `GET /bookings/limits`                                                   | How many tickets you have bought this month and how many you may still buy. Login needed                 |
-| `GET /bookings`                                                          | All your bookings with their status. Login needed                                                        |
-| `GET /bookings/:id`                                                      | One of your own bookings, for the ticket page. Login needed                                              |
-| `GET /bookings/:id/cancel-quote?seats=a,b`                               | What cancelling those seats would cost and refund right now. Login needed                                |
-| `POST /bookings/:id/cancel`                                              | Cancel seats of a booking and record the refund. Login needed                                            |
-| `GET /trains/board?station=DAC&limit=6` | The next trains to leave a station (today and tomorrow), each going to the end of its line, with the seats on sale per class. Feeds the landing page board. Public |
-| `GET /trains/search?from=DAC&to=CGP&date=2026-11-20`                     | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public |
+| Method and path                                                          | What it does                                                                                                                                                       |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `POST /auth/register`                                                    | Create an account and sign in                                                                                                                                      |
+| `POST /auth/login`                                                       | Sign in                                                                                                                                                            |
+| `POST /auth/logout`                                                      | End the session                                                                                                                                                    |
+| `GET /auth/me`                                                           | The signed-in user, including their own NID                                                                                                                        |
+| `GET /stations`                                                          | Every station (code, English name, Bangla name). Public                                                                                                            |
+| `GET /trains/:number/seats?from=DAC&to=CGP&date=2026-11-20&class=schair` | The seats of one class on a train, each free or taken. Public                                                                                                      |
+| `GET /holds/current`                                                     | The seats you are holding, with the seconds left on each. Login needed                                                                                             |
+| `POST /holds`                                                            | Hold one seat. Login needed                                                                                                                                        |
+| `DELETE /holds/:id`                                                      | Release one of your held seats. Login needed                                                                                                                       |
+| `POST /bookings/checkout`                                                | Start the checkout: keeps your held seats for 10 more minutes and returns the order. Login needed                                                                  |
+| `POST /bookings`                                                         | Pay for the seats you hold with the pretend gateway and get the booking. Login needed                                                                              |
+| `GET /bookings/limits`                                                   | How many tickets you have bought this month and how many you may still buy. Login needed                                                                           |
+| `GET /verify/:pnr`                                                       | What a scan of a ticket's QR code shows: valid or not, train, seats, and the passenger as initials. Public                                                         |
+| `GET /bookings`                                                          | All your bookings with their status. Login needed                                                                                                                  |
+| `GET /bookings/:id`                                                      | One of your own bookings, for the ticket page. Login needed                                                                                                        |
+| `GET /bookings/:id/cancel-quote?seats=a,b`                               | What cancelling those seats would cost and refund right now. Login needed                                                                                          |
+| `POST /bookings/:id/cancel`                                              | Cancel seats of a booking and record the refund. Login needed                                                                                                      |
+| `GET /trains/board?station=DAC&limit=6`                                  | The next trains to leave a station (today and tomorrow), each going to the end of its line, with the seats on sale per class. Feeds the landing page board. Public |
+| `GET /trains/search?from=DAC&to=CGP&date=2026-11-20`                     | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public                                                           |
 
 ### How tickets go on sale
 
@@ -235,6 +237,10 @@ Nothing talks to a bank or a wallet and no money moves. The checkout offers bKas
 - **Card:** `4242 4242 4242 4242` with a future expiry and any 3-digit CVC. `4000 0000 0000 0002` is declined.
 - **Seats while paying:** opening the checkout keeps every held seat for at least 10 more minutes. A failed payment keeps the seats held so the person can try again.
 - **After paying:** the held seats become a booking (a PNR code and a transaction id), the holds are removed, and the seats count as taken for everyone. The ticket page shows a QR code with the PNR. A service charge of ৳20 a seat is added as a demo fee.
+
+### The QR code
+
+The QR on an e-ticket holds a link, `/verify/<PNR>`, so any phone camera opens it. That page needs no login and shows only what a gate check needs: whether the ticket is valid (Valid, Valid for the seats left, Cancelled, or Train has left), the train, route, date, seats, and the passenger as initials. It never shows a phone number, NID or payment. `/verify` (footer link "Check a ticket") takes a typed or pasted PNR, or a link, and where the browser has a QR reader (Chrome and Android browsers) it can scan with the camera.
 
 ### Cancelling and refunds
 

@@ -29,6 +29,9 @@ export function Footer() {
             <Link className={link} href="/#how">
               {nav("how")}
             </Link>
+            <Link className={link} href="/verify">
+              {t("check")}
+            </Link>
           </div>
           <div>
             <h4 className={head}>{t("project")}</h4>

@@ -28,6 +28,7 @@ import type {
   PayBookingDto,
   QuoteDto,
   RefundDto,
+  VerifyDto,
 } from '../dto/booking.dto.js';
 import { PaymentService } from './payment.service.js';
 
@@ -152,6 +153,37 @@ export class BookingsService {
     });
     const max = PURCHASE_LIMIT.seatsPerMonth;
     return { used, max, remaining: Math.max(0, max - used), resetsOn };
+  }
+
+  async verify(pnr: string, now: Date): Promise<VerifyDto> {
+    const booking = await this.prisma.booking.findUnique({
+      where: { pnr },
+      include: bookingInclude,
+    });
+    if (!booking) throw new NotFoundException(fail('BOOKING_NOT_FOUND'));
+    const ticket = this.toDto(booking, now);
+    const initials = ticket.passenger.name
+      .trim()
+      .split(/\s+/)
+      .map((word) => `${Array.from(word)[0] ?? ''}***`)
+      .join(' ');
+    return {
+      pnr: ticket.pnr,
+      status: ticket.status,
+      valid:
+        ticket.status === 'confirmed' || ticket.status === 'partly_cancelled',
+      train: ticket.train,
+      from: ticket.from,
+      to: ticket.to,
+      date: ticket.date,
+      departure: ticket.departure,
+      passenger: initials,
+      seats: ticket.seats.map((seat) => ({
+        label: seat.label,
+        coach: seat.coach,
+        seatClass: seat.seatClass,
+      })),
+    };
   }
 
   async list(userId: string, now: Date): Promise<BookingDto[]> {

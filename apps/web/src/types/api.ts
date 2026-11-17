@@ -238,3 +238,16 @@ export interface DepartureBoard {
   station: Station;
   rows: BoardRow[];
 }
+
+export interface TicketCheck {
+  pnr: string;
+  status: BookingStatus;
+  valid: boolean;
+  train: { number: number; nameEn: string; nameBn: string };
+  from: Station;
+  to: Station;
+  date: string;
+  departure: string;
+  passenger: string;
+  seats: { label: string; coach: string; seatClass: ClassKey }[];
+}

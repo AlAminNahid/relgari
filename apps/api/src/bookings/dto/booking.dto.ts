@@ -28,6 +28,23 @@ export const payBookingSchema = z.discriminatedUnion('method', [
 
 export type PayBookingDto = z.infer<typeof payBookingSchema>;
 
+export interface VerifyDto {
+  pnr: string;
+  status: BookingStatus;
+  valid: boolean;
+  train: { number: number; nameEn: string; nameBn: string };
+  from: StationDto;
+  to: StationDto;
+  date: string;
+  departure: string;
+  passenger: string;
+  seats: {
+    label: string;
+    coach: string;
+    seatClass: Exclude<SeatClass, 'shovan'>;
+  }[];
+}
+
 export interface LimitDto {
   used: number;
   max: number;
