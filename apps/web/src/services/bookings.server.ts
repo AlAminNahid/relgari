@@ -1,3 +1,4 @@
+import { apiHeaders } from "@/services/api-headers.server";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE } from "@/config/site";
 import type { Booking, PurchaseLimit } from "@/types/api";
@@ -9,7 +10,10 @@ export async function getBooking(id: string): Promise<Booking | null> {
   if (!token) return null;
   try {
     const res = await fetch(`${API_URL}/bookings/${encodeURIComponent(id)}`, {
-      headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+      headers: {
+        Cookie: `${SESSION_COOKIE}=${token}`,
+        ...(await apiHeaders()),
+      },
       cache: "no-store",
     });
     return res.ok ? ((await res.json()) as Booking) : null;
@@ -23,7 +27,10 @@ export async function listBookings(): Promise<Booking[]> {
   if (!token) return [];
   try {
     const res = await fetch(`${API_URL}/bookings`, {
-      headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+      headers: {
+        Cookie: `${SESSION_COOKIE}=${token}`,
+        ...(await apiHeaders()),
+      },
       cache: "no-store",
     });
     return res.ok ? ((await res.json()) as Booking[]) : [];
@@ -37,7 +44,10 @@ export async function getLimit(): Promise<PurchaseLimit | null> {
   if (!token) return null;
   try {
     const res = await fetch(`${API_URL}/bookings/limits`, {
-      headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+      headers: {
+        Cookie: `${SESSION_COOKIE}=${token}`,
+        ...(await apiHeaders()),
+      },
       cache: "no-store",
     });
     return res.ok ? ((await res.json()) as PurchaseLimit) : null;

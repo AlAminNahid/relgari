@@ -19,6 +19,7 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   NID_ENCRYPTION_KEY: base64Bytes(32, true),
   NID_HASH_SECRET: base64Bytes(32),
+  PROXY_SECRET: z.string().min(16).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

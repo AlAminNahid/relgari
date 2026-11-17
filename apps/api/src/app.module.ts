@@ -1,12 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import {
-  ThrottlerGuard,
-  ThrottlerModule,
-  minutes,
-  normalizeIp,
-} from '@nestjs/throttler';
+import { ThrottlerModule, minutes, normalizeIp } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { AuthModule } from './auth/auth.module.js';
 import { normalizePhone } from './auth/dto/auth-fields.js';
@@ -16,6 +11,8 @@ import { HoldsModule } from './holds/holds.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { THROTTLE } from './shared/constants/throttle.constants.js';
 import { ApiExceptionFilter } from './shared/filters/api-exception.filter.js';
+import { AppThrottlerGuard } from './shared/guards/app-throttler.guard.js';
+import { clientIp } from './shared/utils/client-ip.js';
 import { StationsModule } from './stations/stations.module.js';
 import { TrainsModule } from './trains/trains.module.js';
 
@@ -40,7 +37,7 @@ function accountPhone(req: Request): string {
         skipIf: (context) =>
           !accountPhone(context.switchToHttp().getRequest<Request>()),
         getTracker: (req) =>
-          `${accountPhone(req as Request)}|${normalizeIp((req as Request).ip ?? '')}`,
+          `${accountPhone(req as Request)}|${normalizeIp(clientIp(req as Request))}`,
       },
     ]),
     PrismaModule,
@@ -51,7 +48,7 @@ function accountPhone(req: Request): string {
     BookingsModule,
   ],
   providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
   ],
 })

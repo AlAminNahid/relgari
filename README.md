@@ -276,12 +276,12 @@ Secrets live only in each service's own settings (and in a local `.env`, which g
 
 ### Where each environment's settings live
 
-| File (all ignored by git) | Used by | Holds |
-|---|---|---|
-| `apps/api/.env` | the local API | the local database, the NID keys, port 4000 |
+| File (all ignored by git)  | Used by                                                                                 | Holds                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `apps/api/.env`            | the local API                                                                           | the local database, the NID keys, port 4000             |
 | `apps/api/.env.production` | nothing runs from it: a reference copy of what Render has, plus the `db:*:prod` scripts | the Neon link, `NODE_ENV=production`, the same NID keys |
-| `apps/web/.env` | the local website | `API_URL` for localhost |
-| `apps/web/.env.vercel` | nothing runs from it: a reference copy of what Vercel has | `API_URL` = the Render address |
+| `apps/web/.env`            | the local website                                                                       | `API_URL` for localhost                                 |
+| `apps/web/.env.vercel`     | nothing runs from it: a reference copy of what Vercel has                               | `API_URL` = the Render address                          |
 
 The local app never reads the production files, so testing cannot touch real data. To run something against production on purpose: `npm run db:deploy:prod` (apply migrations to Neon) or `npm run db:studio:prod` (browse the Neon data), both from `apps/api`. When you change a value in a production file, change it in Render or Vercel too: the dashboards are what the live site actually uses. The NID keys are the same in every environment.
 
@@ -309,12 +309,17 @@ The local app never reads the production files, so testing cannot touch real dat
 - **Root directory:** `apps/api`
 - **Build command:** `npm install && npm run build`
 - **Start command:** `npm run start:prod`
-- **Environment:** copy the values from `apps/api/.env.production`: `NODE_ENV`, `DATABASE_URL` (Neon's direct link), `NID_ENCRYPTION_KEY` and `NID_HASH_SECRET` (the same two secrets as local; back them up, since a lost encryption key cannot be recovered). `PORT` is set by Render.
+- **Environment:** copy the values from `apps/api/.env.production`: `NODE_ENV`, `DATABASE_URL` (Neon's direct link), `NID_ENCRYPTION_KEY` and `NID_HASH_SECRET` (the same two secrets as local; back them up, since a lost encryption key cannot be recovered), and `PROXY_SECRET` (see below). `PORT` is set by Render.
 - The build tools (`prisma`, `@nestjs/cli`, `typescript` and the type packages) are in `dependencies` on purpose: Render's production install skips `devDependencies`, and the build needs them.
 
 ### The website (Vercel)
 
 - **Root directory:** `apps/web`
-- **Environment** (see `apps/web/.env.vercel`): `API_URL` = the Render service's address (for example `https://relgari-api.onrender.com`), set for Production **before** the build, because the `/api/*` forwarding is fixed at build time.
-- The browser only talks to the Vercel address; Next.js forwards `/api/*` to Render. So cookies stay on one site and no CORS setting is needed.
+- **Environment** (see `apps/web/.env.vercel`): `API_URL` = the Render service's address (for example `https://relgari.onrender.com`), and `PROXY_SECRET`, the same value as on Render. Both are read when a request arrives, so after changing one, redeploy (or restart) so Vercel picks it up.
+- The browser only talks to the Vercel address; the website (`src/proxy.ts`) forwards `/api/*` to Render. So cookies stay on one site and no CORS setting is needed.
+
+### Rate limits behind the website (`PROXY_SECRET`)
+
+The API limits how often one visitor can register, log in or ask for pages. But the API never meets the visitor: it only meets the website's servers (and Render's own edge in front of it). Without help it counts everyone as the same few addresses, so a handful of visitors could use up each other's limits. So the website sends each visitor's real address to the API in a header, signed with `PROXY_SECRET`, which both sides share. The API (`src/shared/utils/client-ip.ts`) believes the address only when the secret matches, so a visitor cannot fake one. With no `PROXY_SECRET` (as locally) the API counts by connection address instead. Use the same value on Render and Vercel, and make it with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
+
 - Render's free service sleeps when idle, so the first request after a quiet spell can take about a minute.

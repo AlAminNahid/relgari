@@ -1,3 +1,4 @@
+import { apiHeaders } from "@/services/api-headers.server";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE } from "@/config/site";
 import type { AuthUser } from "@/types/api";
@@ -9,7 +10,10 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!token) return null;
   try {
     const res = await fetch(`${API_URL}/auth/me`, {
-      headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+      headers: {
+        Cookie: `${SESSION_COOKIE}=${token}`,
+        ...(await apiHeaders()),
+      },
       cache: "no-store",
     });
     return res.ok ? ((await res.json()) as AuthUser) : null;

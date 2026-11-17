@@ -1,3 +1,4 @@
+import { apiHeaders } from "@/services/api-headers.server";
 import type { ApiErrorCode, TrainSearch } from "@/types/api";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:4000";
@@ -14,6 +15,7 @@ export async function searchTrains(
   try {
     const query = new URLSearchParams({ from, to, date });
     const res = await fetch(`${API_URL}/trains/search?${query}`, {
+      headers: await apiHeaders(),
       cache: "no-store",
     });
     if (res.ok) return { ok: true, data: (await res.json()) as TrainSearch };

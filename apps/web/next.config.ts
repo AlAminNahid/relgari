@@ -1,14 +1,9 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
-// Where the NestJS API listens. The browser never calls it directly: it calls /api/... on this site,
-// and Next.js forwards the request. That keeps cookies same-site and needs no CORS settings.
-const API_URL = process.env.API_URL ?? "http://127.0.0.1:4000";
-
+// /api/* is forwarded to the NestJS API by src/proxy.ts (it reads API_URL when the request arrives).
+// The browser never calls the API directly, which keeps cookies same-site and needs no CORS settings.
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${API_URL}/:path*` }];
-  },
   // Tailwind CSS v4 loader for Turbopack (came with the Next.js template).
   turbopack: {
     // Pin the project root to this folder. Without it Next.js guesses the repo root (it sees ../../.git)

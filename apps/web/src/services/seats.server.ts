@@ -1,3 +1,4 @@
+import { apiHeaders } from "@/services/api-headers.server";
 import type { SeatQuery } from "@/services/seats";
 import type { ApiErrorCode, SeatMap } from "@/types/api";
 
@@ -16,6 +17,7 @@ export async function fetchSeatMap(q: SeatQuery): Promise<SeatMapOutcome> {
       class: q.cls,
     });
     const res = await fetch(`${API_URL}/trains/${q.train}/seats?${query}`, {
+      headers: await apiHeaders(),
       cache: "no-store",
     });
     if (res.ok) return { ok: true, data: (await res.json()) as SeatMap };
