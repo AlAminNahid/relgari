@@ -18,7 +18,11 @@
     "language": "Language",
     "logout": "Log out",
     "account": "Account: {name}",
-    "tickets": "My tickets"
+    "tickets": "My tickets",
+    "logoutTitle": "Log out?",
+    "logoutBody": "You will need to log in again to hold seats or see your tickets.",
+    "logoutStay": "Stay logged in",
+    "loggingOut": "Logging out…"
   },
   "hero": {
     "badge": "New",
@@ -133,7 +137,8 @@
     },
     "monthReached": "You have bought {max, number} tickets this month, the most allowed. You can buy again from {date}.",
     "monthHolding": "This month you can buy only {count, number} more of your {max, number} tickets. Release a seat to choose another.",
-    "emptyMonth": "You cannot hold more seats this month."
+    "emptyMonth": "You cannot hold more seats this month.",
+    "table": "Table"
   },
   "checkout": {
     "title": "Checkout",
@@ -213,11 +218,7 @@
     "stepCode": "Code",
     "stepPin": "PIN",
     "fill": "Use demo value",
-    "stages": [
-      "Contacting {method}…",
-      "Verifying your details…",
-      "Confirming your payment…"
-    ],
+    "stages": ["Contacting {method}…", "Verifying your details…", "Confirming your payment…"],
     "successTitle": "Payment successful",
     "successNote": "Taking you to your e-ticket…",
     "bank": "your bank"
@@ -276,88 +277,59 @@
     "coach": "Coach",
     "seat": "Seat",
     "class": "Class",
-    "seatValue": "14, 15",
+    "seatValue": "GA-30, 31",
     "gate": "Show this at the gate",
-    "gateNote": "Works offline. Sample ticket for the design concept.",
+    "gateNote": "Demo ticket for a concept project. Not valid for travel.",
     "held": "Seats held 05:00"
   },
   "departures": {
-    "eyebrow": "Popular routes",
-    "title": "See what is running, at a glance",
-    "body": "A departure board that reads like the station, with seats left per class so you decide before you tap.",
-    "boardTitle": "Today's departures · sample data",
+    "eyebrow": "Live departures",
+    "title": "See what is leaving, at a glance",
+    "body": "The next trains from the station you pick, with the seats on sale right now in each class, so you decide before you tap.",
+    "boardTitle": "Next departures from {station}",
+    "stations": "Stations",
     "headers": {
       "train": "Train",
       "route": "Route",
       "departs": "Departs",
       "arrives": "Arrives",
-      "classes": "Classes"
+      "classes": "Seats on sale"
     },
-    "rows": [
-      {
-        "name": "Jayantika Express",
-        "route": "Dhaka → Sreemangal",
-        "departs": "11:15",
-        "arrives": "16:01",
-        "tags": ["snigdha", "schair"],
-        "few": false
-      },
-      {
-        "name": "Parabat Express",
-        "route": "Dhaka → Sylhet",
-        "departs": "06:30",
-        "arrives": "13:00",
-        "tags": ["snigdha", "schair"],
-        "few": false
-      },
-      {
-        "name": "Silk City Express",
-        "route": "Dhaka → Rajshahi",
-        "departs": "14:30",
-        "arrives": "20:20",
-        "tags": ["schair"],
-        "few": true
-      },
-      {
-        "name": "Sundarban Express",
-        "route": "Dhaka → Khulna",
-        "departs": "08:00",
-        "arrives": "15:40",
-        "tags": ["ac", "snigdha"],
-        "few": false
-      }
-    ],
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "nextDay": "+1 day",
     "few": "Few seats",
     "book": "Book →",
-    "note": "Times above are sample content for this design concept, not a live timetable."
+    "soldOutNow": "Sold out for now",
+    "empty": "No more departures from this station today or tomorrow.",
+    "error": "The board could not be loaded. Try again in a moment.",
+    "note": "Seat counts are live. More seats open every two days at 5:00 PM, and the count drops as seats are held or bought."
   },
   "seats": {
     "eyebrow": "Seat map",
-    "title": "Pick seats like you pick a cinema seat",
-    "body": "A preview of the coach map. Tap a seat to see how selection looks. Booking starts from the search at the top.",
+    "title": "Pick your exact seat, like on the real coach",
+    "body": "The map follows the railway's own coaches: two seats, the aisle, two seats, and a table in the middle. AC coaches are drawn cabin by cabin. Tap a seat to try it. To book, start from the search at the top.",
     "points": [
       {
         "b": "See every seat.",
-        "t": "Free, selected and sold seats look different, so you never guess."
+        "t": "Free, yours and taken seats look different, so you never guess."
       },
       {
-        "b": "Sit together.",
-        "t": "Spot seats side by side at a glance."
+        "b": "Real layouts.",
+        "t": "Coach, seat numbers and the table match the railway's map."
       },
       {
-        "b": "Know your coach.",
-        "t": "Coach and class are shown right above the map."
+        "b": "Held for 5 minutes.",
+        "t": "Pick up to 4 seats and they stay yours while you pay."
       }
     ],
-    "coach": "Coach KA · Snigdha",
+    "coach": "Coach GA · S_Chair",
     "preview": "Preview",
     "free": "Free",
-    "selected": "Selected",
-    "sold": "Sold",
-    "note": "Preview only. Seats are not reserved here.",
-    "mapLabel": "Coach seat map preview",
-    "seatLabel": "Seat {n}",
-    "seatSold": "Seat {n}, sold"
+    "selected": "Yours",
+    "sold": "Taken",
+    "note": "Preview only. Seats are not held here.",
+    "mapLabel": "Coach seat map preview"
   },
   "how": {
     "eyebrow": "How it works",
@@ -365,19 +337,19 @@
     "steps": [
       {
         "title": "Search",
-        "text": "Choose where you are going and when."
-      },
-      {
-        "title": "Pick a train",
-        "text": "Compare times, classes and seats left."
+        "text": "Pick where you are going and when. No account needed to look."
       },
       {
         "title": "Choose seats",
-        "text": "Tap your seats on the coach map."
+        "text": "Tap up to 4 seats on the coach map. They are held for 5 minutes."
+      },
+      {
+        "title": "Pay",
+        "text": "Pay with bKash, Nagad, Rocket or a card."
       },
       {
         "title": "Get your QR",
-        "text": "Pay and your ticket is ready on your phone."
+        "text": "Your ticket is in My tickets. Cancel seats there if plans change."
       }
     ]
   },

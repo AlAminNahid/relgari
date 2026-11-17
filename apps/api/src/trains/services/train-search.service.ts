@@ -13,7 +13,10 @@ import {
   weekday,
 } from '../../shared/utils/bd-time.js';
 import type {
+  BoardRowDto,
   ClassAvailabilityDto,
+  DepartureBoardDto,
+  DepartureBoardQuery,
   TrainResultDto,
   TrainSearchDto,
   TrainSearchQuery,
@@ -74,26 +77,10 @@ export class TrainSearchService {
       },
     });
 
-    const trainIds = candidates.map((train) => train.id);
-    const [heldRows, bookedRows] = await Promise.all([
-      this.prisma.hold.findMany({
-        where: {
-          fromStationId: from.id,
-          trainId: { in: trainIds },
-          expiresAt: { gt: now },
-        },
-        select: { trainId: true, runDate: true, seatClass: true },
-      }),
-      this.prisma.bookingSeat.findMany({
-        where: { fromStationId: from.id, trainId: { in: trainIds } },
-        select: { trainId: true, runDate: true, seatClass: true },
-      }),
-    ]);
-    const held = new Map<string, number>();
-    for (const row of [...heldRows, ...bookedRows]) {
-      const key = `${row.trainId}:${row.runDate.toISOString().slice(0, 10)}:${row.seatClass}`;
-      held.set(key, (held.get(key) ?? 0) + 1);
-    }
+    const held = await this.heldCounts(
+      from.id,
+      candidates.map((train) => train.id),
+    );
 
     const trains: TrainResultDto[] = [];
     let routeExists = false;
@@ -167,6 +154,125 @@ export class TrainSearchService {
       date,
       routeExists,
       trains,
+    };
+  }
+
+  private async heldCounts(
+    fromStationId: string,
+    trainIds: string[],
+  ): Promise<Map<string, number>> {
+    const now = new Date();
+    const [heldRows, bookedRows] = await Promise.all([
+      this.prisma.hold.findMany({
+        where: {
+          fromStationId,
+          trainId: { in: trainIds },
+          expiresAt: { gt: now },
+        },
+        select: { trainId: true, runDate: true, seatClass: true },
+      }),
+      this.prisma.bookingSeat.findMany({
+        where: { fromStationId, trainId: { in: trainIds } },
+        select: { trainId: true, runDate: true, seatClass: true },
+      }),
+    ]);
+    const held = new Map<string, number>();
+    for (const row of [...heldRows, ...bookedRows]) {
+      const key = `${row.trainId}:${row.runDate.toISOString().slice(0, 10)}:${row.seatClass}`;
+      held.set(key, (held.get(key) ?? 0) + 1);
+    }
+    return held;
+  }
+
+  async board(
+    query: DepartureBoardQuery,
+    now: Date,
+  ): Promise<DepartureBoardDto> {
+    const station = await this.prisma.station.findUnique({
+      where: { code: query.station },
+      select: { id: true, ...stationFields },
+    });
+    if (!station) {
+      throw new NotFoundException({
+        code: 'STATION_NOT_FOUND',
+      } satisfies ApiError);
+    }
+
+    const trains = await this.prisma.train.findMany({
+      where: { stops: { some: { stationId: station.id } } },
+      include: {
+        stops: { orderBy: { sequence: 'asc' }, include: { station: true } },
+        quotas: { where: { stationId: station.id } },
+      },
+    });
+    const held = await this.heldCounts(
+      station.id,
+      trains.map((train) => train.id),
+    );
+
+    const today = bdToday(now);
+    const found: { at: Date; row: BoardRowDto }[] = [];
+    for (const train of trains) {
+      const board = train.stops.find((stop) => stop.stationId === station.id);
+      const last = train.stops.at(-1);
+      if (!board || !last || board.sequence >= last.sequence) continue;
+      const departs = board.departureMinute ?? board.arrivalMinute;
+      const arrives = last.arrivalMinute ?? last.departureMinute;
+      if (departs == null || arrives == null) continue;
+      const boardingMinute = departs % DAY_MINUTES;
+
+      for (const date of [today, addDays(today, 1)]) {
+        const startDate = addDays(date, -Math.floor(departs / DAY_MINUTES));
+        if (train.offDay !== null && weekday(startDate) === train.offDay) {
+          continue;
+        }
+        const at = bdMoment(date, boardingMinute);
+        if (at <= now) continue;
+
+        const classes: BoardRowDto['classes'] = [];
+        for (const seatClass of CLASS_ORDER) {
+          const quota = train.quotas.find((q) => q.seatClass === seatClass);
+          if (!quota) continue;
+          const status = this.release.status(seatClass, quota.seats, date, now);
+          const sold = held.get(`${train.id}:${startDate}:${seatClass}`) ?? 0;
+          classes.push({
+            seatClass,
+            quota: quota.seats,
+            released: status.released,
+            available: Math.max(0, status.released - sold),
+            nextReleaseAt: status.nextReleaseAt?.toISOString() ?? null,
+          });
+        }
+        found.push({
+          at,
+          row: {
+            number: train.number,
+            nameEn: train.nameEn,
+            nameBn: train.nameBn,
+            to: {
+              code: last.station.code,
+              nameEn: last.station.nameEn,
+              nameBn: last.station.nameBn,
+            },
+            date,
+            departure: clock(departs),
+            arrival: clock(arrives),
+            arrivalDayOffset: Math.floor(
+              (boardingMinute + (arrives - departs)) / DAY_MINUTES,
+            ),
+            classes,
+          },
+        });
+      }
+    }
+    found.sort((a, b) => a.at.getTime() - b.at.getTime());
+    return {
+      station: {
+        code: station.code,
+        nameEn: station.nameEn,
+        nameBn: station.nameBn,
+      },
+      rows: found.slice(0, query.limit).map((entry) => entry.row),
     };
   }
 }

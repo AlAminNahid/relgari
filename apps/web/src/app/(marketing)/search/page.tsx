@@ -26,7 +26,8 @@ export default async function SearchPage({
   const from = one(params.from)?.toUpperCase() ?? "";
   const to = one(params.to)?.toUpperCase() ?? "";
   const cls = CLASS_KEYS.find((key) => key === one(params.class)) as
-    ClassKey | undefined;
+    | ClassKey
+    | undefined;
 
   const today = bdToday();
   const requested = one(params.date) ?? "";

@@ -10,7 +10,9 @@ import {
 import type { ApiError } from '../../shared/types/api.types.js';
 import { seatMapSchema, type SeatMapDto } from '../dto/seat-map.dto.js';
 import {
+  departureBoardSchema,
   trainSearchSchema,
+  type DepartureBoardDto,
   type TrainSearchDto,
 } from '../dto/train-search.dto.js';
 import { SeatMapService } from '../services/seat-map.service.js';
@@ -33,6 +35,18 @@ export class TrainsController {
       } satisfies ApiError);
     }
     return this.trainSearch.search(parsed.data, new Date());
+  }
+
+  @Get('board')
+  @Header('Cache-Control', 'no-store')
+  board(@Query() query: Record<string, unknown>): Promise<DepartureBoardDto> {
+    const parsed = departureBoardSchema.safeParse(query);
+    if (!parsed.success) {
+      throw new BadRequestException({
+        code: 'VALIDATION_FAILED',
+      } satisfies ApiError);
+    }
+    return this.trainSearch.board(parsed.data, new Date());
   }
 
   @Get(':number/seats')

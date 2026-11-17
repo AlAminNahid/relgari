@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDownIcon, LogOutIcon, TicketIcon } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { AuthUser } from "@/types/api";
@@ -33,16 +34,15 @@ export function Avatar({ name }: { name: string }) {
 export function AccountMenu({
   user,
   onLogout,
-  loggingOut,
 }: {
   user: AuthUser;
   onLogout: () => void;
-  loggingOut: boolean;
 }) {
   const t = useTranslations("nav");
+  const [open, setOpen] = useState(false);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         aria-label={t("account", { name: user.name })}
         className="flex h-10 items-center gap-2 rounded-full border-[1.5px] bg-card py-1 pl-1 pr-1 text-[14.5px] font-semibold text-foreground outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring aria-expanded:bg-secondary md:pr-2.5"
@@ -75,9 +75,11 @@ export function AccountMenu({
           </Link>
           <button
             type="button"
-            onClick={onLogout}
-            disabled={loggingOut}
-            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14.5px] font-medium text-foreground outline-none transition-colors hover:bg-secondary focus-visible:bg-secondary disabled:opacity-60"
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14.5px] font-medium text-foreground outline-none transition-colors hover:bg-secondary focus-visible:bg-secondary"
           >
             <LogOutIcon className="size-4 text-muted-foreground" />
             {t("logout")}

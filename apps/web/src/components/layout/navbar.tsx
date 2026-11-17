@@ -20,6 +20,7 @@ import { NAV_LINKS } from "@/config/site";
 import { logout } from "@/services/auth";
 import { AccountMenu, Avatar } from "@/components/layout/account-menu";
 import { LanguageSwitch } from "@/components/layout/language-switch";
+import { LogoutDialog } from "@/components/layout/logout-dialog";
 import { Logo } from "@/components/layout/logo";
 
 export function Navbar({ user }: { user: AuthUser | null }) {
@@ -28,6 +29,7 @@ export function Navbar({ user }: { user: AuthUser | null }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -35,6 +37,7 @@ export function Navbar({ user }: { user: AuthUser | null }) {
       await logout();
     } finally {
       setLoggingOut(false);
+      setConfirmOpen(false);
       setMenuOpen(false);
       router.refresh();
     }
@@ -58,11 +61,7 @@ export function Navbar({ user }: { user: AuthUser | null }) {
         <div className="ml-auto flex items-center gap-2.5 lg:ml-0">
           <LanguageSwitch />
           {user ? (
-            <AccountMenu
-              user={user}
-              onLogout={handleLogout}
-              loggingOut={loggingOut}
-            />
+            <AccountMenu user={user} onLogout={() => setConfirmOpen(true)} />
           ) : (
             <Button
               onClick={() => setAuthOpen(true)}
@@ -133,8 +132,10 @@ export function Navbar({ user }: { user: AuthUser | null }) {
                     </div>
                     <Button
                       variant="outline"
-                      onClick={handleLogout}
-                      disabled={loggingOut}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setConfirmOpen(true);
+                      }}
                       className="h-11 rounded-[10px] text-base font-semibold"
                     >
                       {t("logout")}
@@ -158,6 +159,12 @@ export function Navbar({ user }: { user: AuthUser | null }) {
         </div>
       </div>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      <LogoutDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => void handleLogout()}
+        pending={loggingOut}
+      />
     </header>
   );
 }

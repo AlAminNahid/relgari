@@ -215,3 +215,26 @@ export interface PurchaseLimit {
   remaining: number;
   resetsOn: string;
 }
+
+export interface BoardRow {
+  number: number;
+  nameEn: string;
+  nameBn: string;
+  to: Station;
+  date: string;
+  departure: string;
+  arrival: string;
+  arrivalDayOffset: number;
+  classes: {
+    seatClass: ClassKey | "shovan";
+    quota: number;
+    released: number;
+    available: number;
+    nextReleaseAt: string | null;
+  }[];
+}
+
+export interface DepartureBoard {
+  station: Station;
+  rows: BoardRow[];
+}

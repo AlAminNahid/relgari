@@ -48,3 +48,33 @@ export interface TrainSearchDto {
   routeExists: boolean;
   trains: TrainResultDto[];
 }
+
+export const departureBoardSchema = z.object({
+  station: stationCode,
+  limit: z.coerce.number().int().min(1).max(12).default(6),
+});
+
+export type DepartureBoardQuery = z.infer<typeof departureBoardSchema>;
+
+export interface BoardRowDto {
+  number: number;
+  nameEn: string;
+  nameBn: string;
+  to: StationDto;
+  date: string;
+  departure: string;
+  arrival: string;
+  arrivalDayOffset: number;
+  classes: {
+    seatClass: SeatClass;
+    quota: number;
+    released: number;
+    available: number;
+    nextReleaseAt: string | null;
+  }[];
+}
+
+export interface DepartureBoardDto {
+  station: StationDto;
+  rows: BoardRowDto[];
+}

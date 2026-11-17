@@ -1,27 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CheckIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { CoachMap } from "@/components/sections/seats/coach-map";
+import type { SeatView } from "@/components/sections/seats/seat-button";
+import { sampleCoach } from "@/config/coach-sample";
 import { cn } from "@/lib/utils";
 import type { SeatPoint } from "@/types/landing";
-
-const ROWS = 8;
-const SOLD = new Set([2, 3, 6, 9, 10, 13, 14, 17, 22, 25, 26, 30]);
 
 export function SeatPreview() {
   const t = useTranslations("seats");
   const points = t.raw("points") as SeatPoint[];
-  const [picked, setPicked] = useState<number[]>([]);
+  const coach = useMemo(() => sampleCoach(), []);
+  const [picked, setPicked] = useState<string[]>([]);
 
-  const toggle = (n: number) =>
-    setPicked((p) => (p.includes(n) ? p.filter((x) => x !== n) : [...p, n]));
-
-  let n = 0;
-  const cells = Array.from(
-    { length: ROWS },
-    () => [0, 1, "aisle", 2, 3] as const,
-  ).flatMap((row) => row.map((c) => (c === "aisle" ? null : ++n)));
+  const viewOf = (seat: { id: string; state: "free" | "taken" }): SeatView =>
+    picked.includes(seat.id) ? "mine" : seat.state;
 
   return (
     <section id="seats" className="scroll-mt-20 border-y bg-card py-[84px]">
@@ -52,7 +47,7 @@ export function SeatPreview() {
           </ul>
         </div>
 
-        <div className="rounded-[22px] border bg-card px-[22px] pb-6 pt-5 shadow-[0_24px_44px_-30px_rgba(6,56,43,.4)]">
+        <div className="rounded-[22px] border bg-background px-3 pb-5 pt-5 shadow-[0_24px_44px_-30px_rgba(6,56,43,.4)] sm:px-5">
           <div className="mb-3.5 flex items-center justify-between">
             <b className="text-lg font-bold text-brand-deep">{t("coach")}</b>
             <span className="rounded-full bg-brand-soft px-3 py-1 font-mono text-xs font-medium uppercase tracking-[.06em] text-primary">
@@ -62,51 +57,38 @@ export function SeatPreview() {
           <div
             role="group"
             aria-label={t("mapLabel")}
-            className="grid grid-cols-[repeat(2,1fr)_28px_repeat(2,1fr)] justify-items-center gap-2 rounded-[14px] border-2 bg-background p-3.5"
+            className="relative max-h-[800px] overflow-hidden"
           >
-            {cells.map((num, i) => {
-              if (num === null) return <div key={`a${i}`} aria-hidden="true" />;
-              const sold = SOLD.has(num);
-              const on = picked.includes(num);
-              return (
-                <button
-                  key={num}
-                  type="button"
-                  disabled={sold}
-                  aria-pressed={sold ? undefined : on}
-                  aria-label={
-                    sold
-                      ? t("seatSold", { n: num })
-                      : t("seatLabel", { n: num })
-                  }
-                  onClick={() => toggle(num)}
-                  className={cn(
-                    "relative aspect-[1/1.05] w-full max-w-14 rounded-t-[10px] rounded-b-md border-2 font-mono text-[13.5px] font-semibold outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40",
-                    "after:absolute after:inset-x-[18%] after:bottom-[3px] after:h-[5px] after:rounded-[3px] after:bg-current after:opacity-25",
-                    sold &&
-                      "cursor-not-allowed border-[#c4cdc8] bg-[#e5e9e7] text-[#98a49e]",
-                    !sold &&
-                      !on &&
-                      "border-primary bg-brand-soft text-brand-deep hover:bg-[#c8e6d9]",
-                    on && "border-brand-red bg-brand-red text-white",
-                  )}
-                >
-                  {num}
-                </button>
-              );
-            })}
+            <CoachMap
+              coach={coach}
+              seatClass="schair"
+              viewOf={viewOf}
+              busyId={null}
+              locked={false}
+              onPick={(seat) =>
+                setPicked((list) =>
+                  list.includes(seat.id)
+                    ? list.filter((id) => id !== seat.id)
+                    : [...list, seat.id],
+                )
+              }
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent"
+            />
           </div>
           <div className="mt-3.5 flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <i className="size-4 rounded border-2 border-primary bg-brand-soft" />
+              <i className="size-4 rounded border-[1.5px] border-brand-deep/45 bg-card" />
               {t("free")}
             </span>
-            <span className="flex items-center gap-1.5">
-              <i className="size-4 rounded border-2 border-brand-red bg-brand-red" />
+            <span className={cn("flex items-center gap-1.5")}>
+              <i className="size-4 rounded border-[1.5px] border-primary bg-primary" />
               {t("selected")}
             </span>
             <span className="flex items-center gap-1.5">
-              <i className="size-4 rounded border-2 border-[#c4cdc8] bg-[#e5e9e7]" />
+              <i className="size-4 rounded bg-[#d98f3e]" />
               {t("sold")}
             </span>
           </div>

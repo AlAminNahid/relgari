@@ -30,8 +30,6 @@ const placeholder = (
   />
 );
 
-// S_Chair and Snigdha: the coach as the Bangladesh Railway lays it out. Rows of two seats, the
-// aisle, two seats, with gaps at the ends for the doors, and one table in the middle.
 function RowCoach({ coach, viewOf, busyId, locked, onPick }: Props) {
   const t = useTranslations("seatPage");
 
@@ -69,16 +67,20 @@ function RowCoach({ coach, viewOf, busyId, locked, onPick }: Props) {
         {cell(row, 3)}
       </div>
       {row === coach.tableAfterRow && (
-        // One square table, fixed to the side of the coach, between the two facing groups of seats.
         <>
-          <span
-            aria-hidden="true"
-            className="-ml-3 h-12 rounded-r-xl border-y-2 border-r-2 border-[#c9a46b] bg-[#e9d3a8] sm:-ml-5 sm:h-14"
-          />
-          <span
-            aria-hidden="true"
-            className="-mr-3 h-12 rounded-l-xl border-y-2 border-l-2 border-[#c9a46b] bg-[#e9d3a8] sm:-mr-5 sm:h-14"
-          />
+          {[0, 1].map((side) => (
+            <div key={side} className="flex justify-center py-1">
+              <span
+                role="img"
+                aria-label={t("table")}
+                className="grid h-[68px] w-[120px] place-items-center rounded-xl border-2 border-[#b98c4e] bg-[#e5c78f] shadow-[inset_0_0_0_5px_#efd9a8,0_2px_0_#b98c4e] sm:h-20 sm:w-[144px]"
+              >
+                <span className="font-mono text-[11.5px] font-bold uppercase tracking-[.1em] text-[#7a5a26]">
+                  {t("table")}
+                </span>
+              </span>
+            </div>
+          ))}
         </>
       )}
     </div>
@@ -114,9 +116,6 @@ function RowCoach({ coach, viewOf, busyId, locked, onPick }: Props) {
   );
 }
 
-// AC coach, as on the Bangladesh Railway map: cabins in a single column, each with one or two
-// sofas. By day a sofa is a row of 3 seats, numbered from the right. By night it is a row of a lower
-// and an upper berth.
 function CabinCoach({
   coach,
   seatClass,

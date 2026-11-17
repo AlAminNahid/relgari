@@ -75,9 +75,9 @@ export function TicketPreview() {
           </div>
           <div className="mt-2.5 grid grid-cols-3 gap-2.5">
             {[
-              [t("coach"), "KA"],
+              [t("coach"), "GA"],
               [t("seat"), t("seatValue")],
-              [t("class"), tc("snigdha")],
+              [t("class"), tc("schair")],
             ].map(([k, v]) => (
               <div key={k} className="rounded-lg bg-background px-2.5 py-2">
                 <small className="block font-mono text-[11px] uppercase text-muted-foreground">

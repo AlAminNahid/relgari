@@ -15,6 +15,6 @@ export const DEFAULT_CLASS: ClassKey = "schair";
 
 export const MAX_DAYS_AHEAD = 10;
 
-export const ROUTE_EVENT = "relgari:route";
+export const BOARD_STATIONS = ["DAC", "CGP", "SYL", "RAJ", "KLN"] as const;
 
 export const SESSION_COOKIE = "relgari_session";

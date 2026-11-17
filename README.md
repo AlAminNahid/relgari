@@ -204,6 +204,7 @@ The website never calls the API directly. It calls `/api/...` on its own address
 | `GET /bookings/:id`                                                      | One of your own bookings, for the ticket page. Login needed                                              |
 | `GET /bookings/:id/cancel-quote?seats=a,b`                               | What cancelling those seats would cost and refund right now. Login needed                                |
 | `POST /bookings/:id/cancel`                                              | Cancel seats of a booking and record the refund. Login needed                                            |
+| `GET /trains/board?station=DAC&limit=6` | The next trains to leave a station (today and tomorrow), each going to the end of its line, with the seats on sale per class. Feeds the landing page board. Public |
 | `GET /trains/search?from=DAC&to=CGP&date=2026-11-20`                     | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public |
 
 ### How tickets go on sale

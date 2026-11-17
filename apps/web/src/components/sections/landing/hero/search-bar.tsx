@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeftRightIcon,
   CalendarDaysIcon,
@@ -31,7 +31,6 @@ import {
   CLASS_KEYS,
   DEFAULT_CLASS,
   MAX_DAYS_AHEAD,
-  ROUTE_EVENT,
   type ClassKey,
 } from "@/config/site";
 import { useToday } from "@/hooks/use-today";
@@ -81,17 +80,6 @@ export function SearchBar({
   const date = picked ?? today;
   const [open, setOpen] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
-
-  useEffect(() => {
-    const onRoute = (e: Event) => {
-      const detail = (e as CustomEvent<{ from: string; to: string }>).detail;
-      setFrom(detail.from);
-      setTo(detail.to);
-      setProblem(null);
-    };
-    window.addEventListener(ROUTE_EVENT, onRoute);
-    return () => window.removeEventListener(ROUTE_EVENT, onRoute);
-  }, []);
 
   const shortDate = (d: Date) =>
     format.dateTime(d, { day: "numeric", month: "short", year: "numeric" });
