@@ -99,13 +99,41 @@ async function main() {
             }),
           )
         : [];
-      if (isAc) await prisma.seat.deleteMany({ where: { coachId } });
       await prisma.seat.createMany({
         data: [...seats, ...berths],
         skipDuplicates: true,
       });
+      if (isAc) {
+        for (let sofa = 1; sofa <= layout.rows; sofa += 1) {
+          await prisma.seat.updateMany({
+            where: {
+              coachId,
+              kind: 'seat',
+              number: {
+                gt: (sofa - 1) * AC.seatsPerSofaByDay,
+                lte: sofa * AC.seatsPerSofaByDay,
+              },
+            },
+            data: { sofa },
+          });
+          await prisma.seat.updateMany({
+            where: {
+              coachId,
+              kind: 'berth',
+              number: {
+                gt: (sofa - 1) * AC.berthsPerSofaByNight,
+                lte: sofa * AC.berthsPerSofaByNight,
+              },
+            },
+            data: { sofa },
+          });
+        }
+      }
       await prisma.seat.deleteMany({
         where: { coachId, kind: 'seat', number: { gt: total } },
+      });
+      await prisma.seat.deleteMany({
+        where: { coachId, kind: 'berth', number: { gt: berths.length } },
       });
       seatCount += seats.length + berths.length;
 

@@ -3,6 +3,7 @@
 // Feature 2 (the railway itself): stations, trains, train stops, coaches and seats.
 // Feature 3 (ticket search): how many seats of a train each boarding station may sell.
 // Feature 4 (seat map): holds, the seats a person is holding while they decide.
+// Feature 5 (payment): bookings, the seats a person has paid for.
 
 generator client {
   provider            = "prisma-client"
@@ -32,6 +33,7 @@ model User {
 
   sessions Session[]
   holds    Hold[]
+  bookings Booking[]
 
   @@map("users")
 }
@@ -71,10 +73,12 @@ model Station {
   nameEn String @map("name_en")
   nameBn String @map("name_bn")
 
-  stops     TrainStop[]
-  quotas    StationQuota[]
-  holdsFrom Hold[]         @relation("HoldFrom")
-  holdsTo   Hold[]         @relation("HoldTo")
+  stops        TrainStop[]
+  quotas       StationQuota[]
+  holdsFrom    Hold[]         @relation("HoldFrom")
+  holdsTo      Hold[]         @relation("HoldTo")
+  bookingsFrom Booking[]      @relation("BookingFrom")
+  bookingsTo   Booking[]      @relation("BookingTo")
 
   @@map("stations")
 }
@@ -87,10 +91,11 @@ model Train {
   // The weekday the train does not run: 0 is Sunday, 6 is Saturday. Empty means it runs every day.
   offDay Int?   @map("off_day")
 
-  stops   TrainStop[]
-  coaches Coach[]
-  quotas  StationQuota[]
-  holds   Hold[]
+  stops    TrainStop[]
+  coaches  Coach[]
+  quotas   StationQuota[]
+  holds    Hold[]
+  bookings Booking[]
 
   @@map("trains")
 }
@@ -161,8 +166,9 @@ model Seat {
   // A sofa is either 3 seats (by day) or 2 berths (by night), never both at once.
   sofa    Int?
 
-  coach Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  holds Hold[]
+  coach    Coach         @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  holds    Hold[]
+  bookedAs BookingSeat[]
 
   @@unique([coachId, kind, number])
   @@map("seats")
@@ -223,4 +229,63 @@ model StationQuota {
   @@unique([trainId, stationId, seatClass])
   @@index([stationId])
   @@map("station_quotas")
+}
+
+// How a booking was paid. The payment itself is a pretend gateway: no money moves.
+enum PaymentMethod {
+  bkash
+  nagad
+  rocket
+  card
+
+  @@map("payment_method")
+}
+
+// One paid order: the seats a person bought on one journey, with the payment that bought them.
+// Created at the moment the pretend payment succeeds, from the seats the person was holding.
+model Booking {
+  id            String        @id @default(uuid(7))
+  pnr           String        @unique // the short code printed on the ticket, e.g. RG4K7MX2
+  userId        String        @map("user_id")
+  trainId       String        @map("train_id")
+  runDate       DateTime      @map("run_date") @db.Date // the day the train sets off
+  fromStationId String        @map("from_station_id")
+  toStationId   String        @map("to_station_id")
+  paymentMethod PaymentMethod @map("payment_method")
+  transactionId String        @unique @map("transaction_id")
+  subtotal      Int // the fares of all the seats
+  serviceCharge Int           @map("service_charge")
+  total         Int
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  train       Train         @relation(fields: [trainId], references: [id])
+  fromStation Station       @relation("BookingFrom", fields: [fromStationId], references: [id])
+  toStation   Station       @relation("BookingTo", fields: [toStationId], references: [id])
+  seats       BookingSeat[]
+
+  @@index([userId])
+  @@map("bookings")
+}
+
+// One seat of a booking. The train, run date, class and boarding station are copied from the
+// booking so "how many seats are taken" is a single table lookup, the same as for holds.
+model BookingSeat {
+  id            String    @id @default(uuid(7))
+  bookingId     String    @map("booking_id")
+  seatId        String    @map("seat_id")
+  trainId       String    @map("train_id")
+  runDate       DateTime  @map("run_date") @db.Date
+  seatClass     SeatClass @map("seat_class")
+  fromStationId String    @map("from_station_id")
+  fare          Int
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat    @relation(fields: [seatId], references: [id])
+
+  // A seat can be sold once per run of the train.
+  @@unique([seatId, runDate])
+  @@index([trainId, runDate])
+  @@index([bookingId])
+  @@map("booking_seats")
 }

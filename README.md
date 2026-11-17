@@ -31,12 +31,15 @@ apps/web/
     │       │              several files gets its own folder (hero/, departure-board/)
     │       ├── auth/      Login and registration popup
     │       ├── search/    Search results: the train card and the row of dates
-    │       └── seats/     Seat page: the coach map, seat buttons and the panel of held seats
+    │       ├── seats/     Seat page: the coach map, seat buttons and the panel of held seats
+    │       ├── checkout/  Checkout page and the pretend payment popup (bKash, Nagad, Rocket, card)
+    │       └── ticket/    The e-ticket with its QR code
     ├── services/          Every call to the API: http.ts (the fetch helper), auth.ts (login, register, logout),
     │                      auth.server.ts (who is signed in, used by the server),
     │                      stations.server.ts (the station list for the search form),
     │                      trains.server.ts (the train search),
-    │                      seats.ts and seats.server.ts (the seat map and the holds)
+    │                      seats.ts and seats.server.ts (the seat map and the holds),
+    │                      bookings.ts and bookings.server.ts (checkout, payment and the ticket)
     ├── lib/               validations.ts (form rules), stations.ts (match a typed name to a station),
     │                      dates.ts (journey dates as YYYY-MM-DD in Bangladesh time), i18n/, utils.ts
     ├── hooks/             Custom React hooks
@@ -81,6 +84,12 @@ apps/api/
     │   │                  trains.service.ts (one train with its route and coaches)
     │   ├── dto/           train-search.dto.ts (the search input and result), train-detail.dto.ts
     │   └── trains.module.ts
+    ├── bookings/          Checkout, the pretend payment and paid bookings
+    │   ├── controllers/   bookings.controller.ts (the /bookings routes, login needed)
+    │   ├── services/      bookings.service.ts (checkout, create a booking, read a ticket),
+    │   │                  payment.service.ts (the pretend gateway: yes or no by fixed rules)
+    │   ├── dto/           booking.dto.ts
+    │   └── bookings.module.ts
     ├── holds/             Seats a person is holding while they decide
     │   ├── controllers/   holds.controller.ts (the /holds routes, login needed)
     │   ├── services/      holds.service.ts (hold, list and release a seat, with the rules)
@@ -188,6 +197,9 @@ The website never calls the API directly. It calls `/api/...` on its own address
 | `GET /holds/current` | The seats you are holding, with the seconds left on each. Login needed |
 | `POST /holds` | Hold one seat. Login needed |
 | `DELETE /holds/:id` | Release one of your held seats. Login needed |
+| `POST /bookings/checkout` | Start the checkout: keeps your held seats for 10 more minutes and returns the order. Login needed |
+| `POST /bookings` | Pay for the seats you hold with the pretend gateway and get the booking. Login needed |
+| `GET /bookings/:id` | One of your own bookings, for the ticket page. Login needed |
 | `GET /trains/search?from=DAC&to=CGP&date=2026-11-20` | Trains running between two stations on a date, with times, fares and the seats on sale per class. Public |
 
 ### How tickets go on sale
@@ -199,7 +211,7 @@ Relgari does not put every ticket on sale at once. Three rules decide what a sea
 - **AC Seat and AC Cabin.** An AC coach is made of cabins with 1 or 2 sofas (7 cabins with 2, 2, 1, 1, 1, 2 and 2 sofas, from the Bangladesh Railway map). By day a sofa seats 3 people and is sold as AC Seat (33 seats a coach). By night each sofa is a berth with an upper berth above it, sold as AC Cabin: a cabin with 2 sofas sleeps 4 and a cabin with 1 sofa sleeps 2 (22 berths a coach). Which one a passenger gets depends on when the train leaves the station they board at: 6:00 AM up to 6:00 PM is day (`apps/api/src/shared/constants/ac.constants.ts`). A station is only ever in one of the two, so the same sofas are never sold twice for the same boarding.
 - **Settings.** The window, the gap, the time and the percentages are in `apps/api/src/shared/constants/release.constants.ts`. The website's 10-day limit is `MAX_DAYS_AHEAD` in `apps/web/src/config/site.ts`.
 
-Held seats are taken off the seats on sale; nothing can be bought yet, so there are no bookings to subtract. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.
+Held and booked seats are taken off the seats on sale. A seat counts for the whole run of the train: it is not sold again after its passenger gets off.
 
 ### Holding seats
 
@@ -210,6 +222,15 @@ Held seats are taken off the seats on sale; nothing can be bought yet, so there 
 - **On sale.** A seat can only be held while the station still has seats released and not held. The seat map shows the whole coach; the count is the limit.
 - **AC sofas.** An AC sofa held as seats (by day) cannot also be held as berths (by night), and the other way round. Berths are stored as seats of kind `berth` next to the day seats.
 
+### The pretend payment
+
+Nothing talks to a bank or a wallet and no money moves. The checkout offers bKash, Nagad, Rocket and Card; each opens a popup in that method's colours, with a "Demo" label and the test values written on it. The API checks what was typed by fixed rules (`apps/api/src/shared/constants/payment.constants.ts`):
+
+- **Wallets:** any valid mobile number, code `12345`, PIN `1234`. PIN `0000` shows a failed payment (not enough balance).
+- **Card:** `4242 4242 4242 4242` with a future expiry and any 3-digit CVC. `4000 0000 0000 0002` is declined.
+- **Seats while paying:** opening the checkout keeps every held seat for at least 10 more minutes. A failed payment keeps the seats held so the person can try again.
+- **After paying:** the held seats become a booking (a PNR code and a transaction id), the holds are removed, and the seats count as taken for everyone. The ticket page shows a QR code with the PNR. A service charge of ৳20 a seat is added as a demo fee.
+
 ## Build order
 
 The project is built one feature at a time. Database tables are added only when a feature needs them.
@@ -218,5 +239,5 @@ The project is built one feature at a time. Database tables are added only when 
 2. Stations, trains, coaches and seats (stations, trains, train_stops, coaches and seats tables) ✅
 3. Train search (station_quotas table) ✅
 4. Seat map and seat holds (holds table) ✅
-5. Fake payment and QR tickets
+5. Fake payment and QR tickets (bookings and booking_seats tables) ✅
 6. My tickets, cancel and refund

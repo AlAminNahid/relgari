@@ -10,6 +10,7 @@ import type {
 } from '../dto/seat-map.dto.js';
 import { FareService } from './fare.service.js';
 import { dbDate, JourneyService } from './journey.service.js';
+import { takenOnRun } from './seat-usage.js';
 import { ReleaseService } from './release.service.js';
 import { coachClassOf, kindOf } from './seat-class.js';
 import { planFor } from '../../shared/constants/coach-layout.constants.js';
@@ -56,7 +57,7 @@ export class SeatMapService {
       } satisfies ApiError);
     }
 
-    const [coaches, holds] = await Promise.all([
+    const [coaches, taken] = await Promise.all([
       this.prisma.coach.findMany({
         where: { trainId: train.id, seatClass: coachClassOf(sold) },
         orderBy: { position: 'asc' },
@@ -68,31 +69,19 @@ export class SeatMapService {
           },
         },
       }),
-      this.prisma.hold.findMany({
-        where: {
-          trainId: train.id,
-          runDate: dbDate(runDate),
-          expiresAt: { gt: now },
-        },
-        select: { seatId: true, seatClass: true, fromStationId: true },
-      }),
+      takenOnRun(this.prisma, train.id, dbDate(runDate), now),
     ]);
-    const heldIds = new Set(holds.map((h) => h.seatId));
-    const heldFromHere = holds.filter(
-      (h) => h.seatClass === sold && h.fromStationId === from.id,
+    const heldIds = new Set(taken.map((t) => t.seatId));
+    const heldFromHere = taken.filter(
+      (t) => t.seatClass === sold && t.fromStationId === from.id,
     ).length;
 
     const heldSofas = new Set<string>();
     if (coachClassOf(sold) === 'ac') {
-      const other = await this.prisma.seat.findMany({
-        where: {
-          id: { in: [...heldIds] },
-          coach: { trainId: train.id, seatClass: 'ac' },
-          kind: sold === 'ac' ? 'seat' : 'berth',
-        },
-        select: { coachId: true, sofa: true },
-      });
-      for (const seat of other) heldSofas.add(`${seat.coachId}:${seat.sofa}`);
+      const otherKind = sold === 'ac' ? 'seat' : 'berth';
+      for (const t of taken) {
+        if (t.kind === otherKind) heldSofas.add(`${t.coachId}:${t.sofa}`);
+      }
     }
 
     const status = this.release.status(sold, quota.seats, query.date, now);

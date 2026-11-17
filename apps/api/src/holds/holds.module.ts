@@ -8,5 +8,6 @@ import { HoldsService } from './services/holds.service.js';
   imports: [AuthModule, TrainsModule],
   controllers: [HoldsController],
   providers: [HoldsService],
+  exports: [HoldsService],
 })
 export class HoldsModule {}

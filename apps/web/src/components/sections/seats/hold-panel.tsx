@@ -1,7 +1,7 @@
 import { ClockIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { dateStringToUtc } from "@/lib/dates";
 import { stationName } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -164,15 +164,15 @@ export function HoldPanel({
               ৳{format.number(total)}
             </b>
           </div>
-          <Button
-            disabled
-            className="mt-3 h-11 w-full rounded-xl bg-brand-red text-[15.5px] font-bold text-white"
+          <Link
+            href="/checkout"
+            className={cn(
+              buttonVariants(),
+              "mt-3 h-11 w-full rounded-xl bg-brand-red text-[15.5px] font-bold text-white hover:bg-brand-red/90",
+            )}
           >
             {t("continue")}
-          </Button>
-          <p className="mt-2 text-center text-[12.5px] text-muted-foreground">
-            {t("paymentSoon")}
-          </p>
+          </Link>
         </div>
       )}
     </aside>

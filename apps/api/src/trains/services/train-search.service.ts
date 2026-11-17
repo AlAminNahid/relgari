@@ -74,16 +74,23 @@ export class TrainSearchService {
       },
     });
 
-    const heldRows = await this.prisma.hold.findMany({
-      where: {
-        fromStationId: from.id,
-        trainId: { in: candidates.map((train) => train.id) },
-        expiresAt: { gt: now },
-      },
-      select: { trainId: true, runDate: true, seatClass: true },
-    });
+    const trainIds = candidates.map((train) => train.id);
+    const [heldRows, bookedRows] = await Promise.all([
+      this.prisma.hold.findMany({
+        where: {
+          fromStationId: from.id,
+          trainId: { in: trainIds },
+          expiresAt: { gt: now },
+        },
+        select: { trainId: true, runDate: true, seatClass: true },
+      }),
+      this.prisma.bookingSeat.findMany({
+        where: { fromStationId: from.id, trainId: { in: trainIds } },
+        select: { trainId: true, runDate: true, seatClass: true },
+      }),
+    ]);
     const held = new Map<string, number>();
-    for (const row of heldRows) {
+    for (const row of [...heldRows, ...bookedRows]) {
       const key = `${row.trainId}:${row.runDate.toISOString().slice(0, 10)}:${row.seatClass}`;
       held.set(key, (held.get(key) ?? 0) + 1);
     }
@@ -113,7 +120,6 @@ export class TrainSearchService {
         const quota = train.quotas.find((q) => q.seatClass === seatClass);
         if (!quota) continue;
         const status = this.release.status(seatClass, quota.seats, date, now);
-        // Bookings will be subtracted here too once tickets can be bought.
         const sold = held.get(`${train.id}:${startDate}:${seatClass}`) ?? 0;
         classes.push({
           seatClass,

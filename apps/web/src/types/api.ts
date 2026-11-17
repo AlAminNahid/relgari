@@ -1,3 +1,4 @@
+import type { PaymentMethod } from "@/config/payment";
 import type { ClassKey } from "@/config/site";
 import type { AuthErrorKey } from "@/lib/validations";
 
@@ -18,6 +19,14 @@ export type ApiErrorCode =
   | "HOLD_LIMIT"
   | "DIFFERENT_JOURNEY"
   | "HOLD_NOT_FOUND"
+  | "HOLDS_EMPTY"
+  | "BOOKING_NOT_FOUND"
+  | "INVALID_WALLET_NUMBER"
+  | "INVALID_OTP"
+  | "INVALID_PIN"
+  | "INSUFFICIENT_BALANCE"
+  | "INVALID_CARD"
+  | "CARD_DECLINED"
   | "TOO_MANY_REQUESTS"
   | "INTERNAL";
 
@@ -123,4 +132,37 @@ export interface Hold {
   date: string;
   expiresAt: string;
   secondsLeft: number;
+}
+
+export interface Checkout {
+  holds: Hold[];
+  subtotal: number;
+  serviceCharge: number;
+  total: number;
+}
+
+export interface Booking {
+  id: string;
+  pnr: string;
+  train: { number: number; nameEn: string; nameBn: string };
+  from: Station;
+  to: Station;
+  date: string;
+  departure: string;
+  arrival: string;
+  arrivalDayOffset: number;
+  passenger: { name: string; phone: string };
+  seats: {
+    id: string;
+    label: string;
+    coach: string;
+    seatClass: ClassKey;
+    fare: number;
+  }[];
+  subtotal: number;
+  serviceCharge: number;
+  total: number;
+  paymentMethod: PaymentMethod;
+  transactionId: string;
+  paidAt: string;
 }

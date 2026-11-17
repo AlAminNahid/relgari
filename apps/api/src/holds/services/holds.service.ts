@@ -14,7 +14,8 @@ import {
   JourneyService,
 } from '../../trains/services/journey.service.js';
 import { ReleaseService } from '../../trains/services/release.service.js';
-import { soldClass } from '../../trains/services/seat-class.js';
+import { seatLabel, soldClass } from '../../trains/services/seat-class.js';
+import { takenOnRun } from '../../trains/services/seat-usage.js';
 import type { CreateHoldDto, HoldDto } from '../dto/hold.dto.js';
 
 const fail = (code: ApiErrorCode) => ({ code }) satisfies ApiError;
@@ -49,10 +50,7 @@ export class HoldsService {
       return {
         id: hold.id,
         seatId: seat.id,
-        label:
-          seat.kind === 'berth'
-            ? `${seat.coach.code}-${(seat.number - 1) % 2 === 0 ? 'LO' : 'UP'}-${seat.number}`
-            : `${seat.coach.code}-${seat.number}`,
+        label: seatLabel(seat, seat.coach.code),
         coach: seat.coach.code,
         seatClass: hold.seatClass as HoldDto['seatClass'],
         fare: hold.fare,
@@ -136,29 +134,26 @@ export class HoldsService {
           throw new ConflictException(fail('DIFFERENT_JOURNEY'));
         }
 
-        const live = await tx.hold.findMany({
-          where: { trainId: train.id, runDate: run, expiresAt: { gt: now } },
-          include: { seat: true },
-        });
-        if (live.some((hold) => hold.seatId === seat.id)) {
+        const taken = await takenOnRun(tx, train.id, run, now);
+        if (taken.some((t) => t.seatId === seat.id)) {
           throw new ConflictException(fail('SEAT_TAKEN'));
         }
         if (
           seat.sofa !== null &&
-          live.some(
-            (hold) =>
-              hold.seat.coachId === seat.coachId &&
-              hold.seat.sofa === seat.sofa &&
-              hold.seat.kind !== seat.kind,
+          taken.some(
+            (t) =>
+              t.coachId === seat.coachId &&
+              t.sofa === seat.sofa &&
+              t.kind !== seat.kind,
           )
         ) {
           throw new ConflictException(fail('SEAT_TAKEN'));
         }
 
-        const heldFromHere = live.filter(
-          (hold) => hold.seatClass === sold && hold.fromStationId === from.id,
+        const takenFromHere = taken.filter(
+          (t) => t.seatClass === sold && t.fromStationId === from.id,
         ).length;
-        if (status.released - heldFromHere <= 0) {
+        if (status.released - takenFromHere <= 0) {
           throw new ConflictException(fail('NOT_ON_SALE'));
         }
 

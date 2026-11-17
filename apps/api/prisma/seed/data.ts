@@ -37,7 +37,7 @@ export const COACH_LAYOUT: Record<
   { rows: number; seatsPerRow: number }
 > = {
   schair: { rows: 15, seatsPerRow: 4 },
-  snigdha: { rows: 13, seatsPerRow: 4 },
+  snigdha: { rows: 15, seatsPerRow: 4 },
   ac: { rows: SOFAS_PER_AC_COACH, seatsPerRow: AC.seatsPerSofaByDay },
 };
 

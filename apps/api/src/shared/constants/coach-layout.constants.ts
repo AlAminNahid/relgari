@@ -20,10 +20,6 @@ export const COACH_PLANS: Record<number, CoachPlan> = {
     ],
     tableAfterRow: 8,
   },
-  52: {
-    rows: [...run(1, 24), ...run(25, 52)],
-    tableAfterRow: 5,
-  },
 };
 
 export function planFor(total: number): CoachPlan {

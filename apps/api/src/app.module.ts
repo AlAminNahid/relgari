@@ -11,6 +11,7 @@ import type { Request } from 'express';
 import { AuthModule } from './auth/auth.module.js';
 import { normalizePhone } from './auth/dto/auth-fields.js';
 import { validateEnv } from './config/env.js';
+import { BookingsModule } from './bookings/bookings.module.js';
 import { HoldsModule } from './holds/holds.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { THROTTLE } from './shared/constants/throttle.constants.js';
@@ -47,6 +48,7 @@ function accountPhone(req: Request): string {
     StationsModule,
     TrainsModule,
     HoldsModule,
+    BookingsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
