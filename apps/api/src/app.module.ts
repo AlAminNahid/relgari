@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { normalizePhone } from './auth/dto/auth-fields.js';
 import { validateEnv } from './config/env.js';
 import { BookingsModule } from './bookings/bookings.module.js';
+import { HealthController } from './health/health.controller.js';
 import { HoldsModule } from './holds/holds.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { QueueModule } from './queue/queue.module.js';
@@ -49,6 +50,7 @@ function accountPhone(req: Request): string {
     BookingsModule,
     QueueModule,
   ],
+  controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_FILTER, useClass: ApiExceptionFilter },

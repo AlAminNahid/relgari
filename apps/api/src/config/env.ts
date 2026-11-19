@@ -20,6 +20,10 @@ export const envSchema = z.object({
   NID_ENCRYPTION_KEY: base64Bytes(32, true),
   NID_HASH_SECRET: base64Bytes(32),
   PROXY_SECRET: z.string().min(16).optional(),
+  HEALTH_TOKEN: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{16,}$/)
+    .optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
