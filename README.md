@@ -410,12 +410,10 @@ The local app never reads the production files, so testing cannot touch real dat
 ### The website (Vercel)
 
 - **Root directory:** `apps/web`
-- **Environment** (see `apps/web/.env.vercel`): `API_URL` = the Render service's address (for example `https://relgari.onrender.com`), and `PROXY_SECRET`, the same value as on Render. Both are read when a request arrives, so after changing one, redeploy so Vercel picks it up.
+- **Environment** (see `apps/web/.env.vercel`): `API_URL` = the Render service's address (for example `https://relgari.onrender.com`), and `PROXY_SECRET`, the same value as on Render. To make the Contact page send mail, also set `EMAIL_USER` (a Gmail address) and `EMAIL_PASS` (its app password); the message goes to that inbox. Without them the page shows a "could not be sent" message. Both are read when a request arrives, so after changing one, redeploy so Vercel picks it up.
 - The forwarding is a route you can read (not a rewrite) on purpose: a rewrite to another address did not reliably carry the extra headers on Vercel, so the visitor's address never reached the API. Note the API counts each limit per route and per visitor.
 - The browser only talks to the Vercel address; the website (`src/app/api/[...path]/route.ts`) forwards `/api/*` to Render. So cookies stay on one site and no CORS setting is needed.
 
 ### Rate limits behind the website (`PROXY_SECRET`)
 
 The API limits how often one visitor can register, log in or ask for pages. But the API never meets the visitor: it only meets the website's servers (and Render's own edge in front of it). Without help it counts everyone as the same few addresses, so a handful of visitors could use up each other's limits. So the website sends each visitor's real address to the API in a header, signed with `PROXY_SECRET` (the forwarding route does it for browser calls, and `apiHeaders()` for the website's own server-side calls), which both sides share. The API (`src/shared/utils/client-ip.ts`) believes the address only when the secret matches, so a visitor cannot fake one. With no `PROXY_SECRET` (as locally) the API counts by connection address instead. Use the same value on Render and Vercel, and make it with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
-
-- Render's free service sleeps when idle, so the first request after a quiet spell can take about a minute.

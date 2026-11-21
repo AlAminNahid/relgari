@@ -35,17 +35,14 @@ export function Footer() {
           </div>
           <div>
             <h4 className={head}>{t("project")}</h4>
-            <Link className={link} href="/#top">
+            <Link className={link} href="/about">
               {t("about")}
             </Link>
-            <Link className={link} href="/#top">
+            <Link className={link} href="/contact">
               {t("contact")}
             </Link>
           </div>
         </div>
-        <p className="mt-8 border-t border-[#1e5442] pt-[18px] text-sm">
-          {t("fine")}
-        </p>
       </div>
     </footer>
   );

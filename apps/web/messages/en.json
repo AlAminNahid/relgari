@@ -371,7 +371,6 @@
     "project": "Project",
     "about": "About",
     "contact": "Contact",
-    "fine": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold.",
     "check": "Check a ticket"
   },
   "auth": {
@@ -466,6 +465,66 @@
       "VALIDATION_FAILED": "Choose at least one seat.",
       "INTERNAL": "Something went wrong. Try again.",
       "TOO_MANY_REQUESTS": "You're going a bit fast. Please wait {seconds, number} seconds and try again."
+    }
+  },
+  "about": {
+    "title": "About Relgari",
+    "intro": "Relgari (রেলগাড়ি, “railway carriage”) is a working prototype of a Bangladesh Railway-style ticket booking site. It is a personal project about making train booking calmer, even when many people want the same train.",
+    "whyTitle": "Why it exists",
+    "whyText": "Buying a train ticket can mean a frozen page, being sent back to the start, and seats gone before you can choose. Relgari asks a simple question: what would booking feel like if the system were built to handle the crowd politely, and to fit how people really plan a journey?",
+    "doesTitle": "What it does",
+    "features": {
+      "queue": {
+        "title": "A waiting room.",
+        "text": "On a busy train you get a place in line and a rough wait, and refreshing keeps your place."
+      },
+      "batches": {
+        "title": "Tickets in batches.",
+        "text": "Seats open in chunks every 2 days, so you do not have to buy early just because you are unsure of your date."
+      },
+      "seats": {
+        "title": "A live seat map.",
+        "text": "Pick exact seats. A seat you hold is yours for 5 minutes, and two people can never buy the same seat."
+      },
+      "cancel": {
+        "title": "Partial cancel.",
+        "text": "Bought four seats but need one? Cancel only the others and keep your ticket."
+      },
+      "ticket": {
+        "title": "QR e-tickets.",
+        "text": "Anyone can check a ticket, and the check shows only the passenger’s initials."
+      },
+      "language": {
+        "title": "Bangla and English.",
+        "text": "The whole site works in both languages."
+      }
+    },
+    "honestTitle": "What is real and what is pretend",
+    "honestText": "The trains and stations are modelled on Bangladesh Railway’s network. Accounts, seat holds, bookings and refunds are all real inside the app. Payments are a demo, and fares, coaches and each station’s share of seats are estimates.",
+    "disclaimer": "Relgari is a personal concept project. It is not affiliated with Bangladesh Railway, and no real tickets are sold.",
+    "builtTitle": "Who built it",
+    "builtText": "Relgari was built by Al Amin, a developer in Dhaka, for the joy of it. Feedback is welcome: use the",
+    "contactLink": "Contact page",
+    "or": "or visit my",
+    "portfolioLink": "portfolio"
+  },
+  "contact": {
+    "title": "Contact",
+    "intro": "Questions, feedback or ideas? Send a message and it will reach the person who built Relgari.",
+    "name": "Your name",
+    "email": "Your email",
+    "message": "Message",
+    "send": "Send message",
+    "sending": "Sending…",
+    "sentTitle": "Message sent",
+    "sentBody": "Thank you. You will get a reply by email if one is needed.",
+    "another": "Send another",
+    "errors": {
+      "name": "Enter your name (letters only).",
+      "email": "Enter a valid email address.",
+      "message": "Write a message of up to 1,000 characters.",
+      "TOO_MANY_REQUESTS": "You have sent a few messages already. Please try again in {minutes} minutes.",
+      "SEND_FAILED": "The message could not be sent. Please try again in a moment."
     }
   },
   "verify": {
